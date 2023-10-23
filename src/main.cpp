@@ -2,9 +2,9 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include <map>
 #include <chrono>
 #include <thread>
+#include <mutex>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -12,10 +12,36 @@ using json = nlohmann::json;
 #include "schedule.h"
 #include "rsync.h"
 
+//mutex lock for threads
+std::mutex tLock;
+
 //prints a json object
 void printJson(json object){
     for (auto& x : object.items()){
         std::cout << "key: " << x.key() << ", value: " << x.value() << '\n';
+    }
+}
+
+// runs in a seperate thread
+// if there is a job in the queue it gets ran and then removed from the front of the queue in a loop
+void jobQueueThread(std::vector<std::string> &queue, json &config){
+    while(true){
+        tLock.lock();
+        int queueSize = queue.size();
+        tLock.unlock();
+
+        if(queueSize > 0){
+            //run the first job in the queue
+            syncProject(queue[0], config);
+            //remove first item from queue
+            tLock.lock();
+            queue.erase(queue.begin());
+            std::cout << queue.size() << std::endl;
+            tLock.unlock();
+        }
+
+        //sleep for 5 seconds so that we arnt running constantly and to prevent constant locking
+        std::this_thread::sleep_for(std::chrono::seconds(5));
     }
 }
 
@@ -53,11 +79,11 @@ int main(){
     bool success = schedule.verify(tasks);
     std::cout << success << std::endl;
 
-    //used to prevent a project from syncing twice at the same time.
-    std::map<std::string, bool> syncLocks;
-    for(int i = 0; i < tasks.size(); i++){
-        syncLocks[tasks[i].name] = false;
-    }
+    //jobqueue (locked with tLock)
+    std::vector<std::string> queue;
+
+    //jobqueueThread runs all the jobs that get entered into the queue
+    std::thread jt(jobQueueThread, std::ref(queue), std::ref(config));
 
     std::string name;
     int seconds_to_sleep;
@@ -65,13 +91,19 @@ int main(){
         //get the name of the next job and how long we have to sleep till the next job from the schedule
         schedule.nextJob(name, seconds_to_sleep);
         std::cout << name << " " << seconds_to_sleep << std::endl;
+
         //sleep till the next job
         std::this_thread::sleep_for(std::chrono::seconds(seconds_to_sleep));
 
-        //run syncProject in a seperate detatched thread
-        std::thread pt(syncProject, name, std::ref(syncLocks), std::ref(config["mirrors"]));
-        pt.detach();
+        //add job to job queue
+        tLock.lock();
+        queue.push_back(name);
+        std::cout << queue.size() << std::endl;
+        tLock.unlock();
     }
+
+    //join our job queue thread before we end the program.
+    jt.join();
     
     return 0;
 }

@@ -1,0 +1,18 @@
+cmake_minimum_required(VERSION 3.22)
+project(syncScheduler)
+
+add_executable(${PROJECT_NAME}
+    src/main.cpp
+    src/schedule.cpp
+    src/rsync.cpp
+)
+
+include(FetchContent)
+
+FetchContent_Declare(json
+    GIT_REPOSITORY https://github.com/nlohmann/json
+    GIT_TAG v3.11.2
+)
+FetchContent_MakeAvailable(json)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)

@@ -85,19 +85,25 @@ int main(){
     //jobqueueThread runs all the jobs that get entered into the queue
     std::thread jt(jobQueueThread, std::ref(queue), std::ref(config));
 
-    std::string name;
+    std::vector<std::string> name;
     int seconds_to_sleep;
     while(true){
         //get the name of the next job and how long we have to sleep till the next job from the schedule
         schedule.nextJob(name, seconds_to_sleep);
-        std::cout << name << " " << seconds_to_sleep << std::endl;
+
+        for(int i = 0; i < name.size(); i++){
+            std::cout << name[i] << " " << std::endl;
+        }
+        std::cout << seconds_to_sleep << std::endl;
 
         //sleep till the next job
         std::this_thread::sleep_for(std::chrono::seconds(seconds_to_sleep));
 
         //add job to job queue
         tLock.lock();
-        queue.push_back(name);
+        for(int i = 0; i < name.size(); i++){
+            queue.push_back(name[i]);
+        }
         std::cout << queue.size() << std::endl;
         tLock.unlock();
     }

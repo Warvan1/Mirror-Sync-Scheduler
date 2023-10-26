@@ -5,6 +5,7 @@
 #include <chrono>
 #include <thread>
 #include <mutex>
+#include <list>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -24,18 +25,18 @@ void printJson(json object){
 
 // runs in a seperate thread
 // if there is a job in the queue it gets ran and then removed from the front of the queue in a loop
-void jobQueueThread(std::vector<std::string> &queue, json &config){
+void jobQueueThread(std::list<std::string> &queue, json &config){
     while(true){
         tLock.lock();
-        int queueSize = queue.size();
+        bool queueEmpty = queue.empty();
         tLock.unlock();
 
-        if(queueSize > 0){
+        if(!queueEmpty){
             //run the first job in the queue
-            syncProject(queue[0], config);
+            syncProject(queue.front(), config);
             //remove first item from queue
             tLock.lock();
-            queue.erase(queue.begin());
+            queue.pop_front();
             std::cout << queue.size() << std::endl;
             tLock.unlock();
         }
@@ -80,19 +81,19 @@ int main(){
     std::cout << success << std::endl;
 
     //jobqueue (locked with tLock)
-    std::vector<std::string> queue;
+    std::list<std::string> queue;
 
     //jobqueueThread runs all the jobs that get entered into the queue
     std::thread jt(jobQueueThread, std::ref(queue), std::ref(config));
 
-    std::vector<std::string> name;
+    std::vector<std::string> *name;
     int seconds_to_sleep;
     while(true){
         //get the name of the next job and how long we have to sleep till the next job from the schedule
-        schedule.nextJob(name, seconds_to_sleep);
+        name = schedule.nextJob(seconds_to_sleep);
 
-        for(int i = 0; i < name.size(); i++){
-            std::cout << name[i] << " " << std::endl;
+        for(int i = 0; i < name->size(); i++){
+            std::cout << (*name)[i] << " " << std::endl;
         }
         std::cout << seconds_to_sleep << std::endl;
 
@@ -101,8 +102,8 @@ int main(){
 
         //add job to job queue
         tLock.lock();
-        for(int i = 0; i < name.size(); i++){
-            queue.push_back(name[i]);
+        for(int i = 0; i < name->size(); i++){
+            queue.push_back((*name)[i]);
         }
         std::cout << queue.size() << std::endl;
         tLock.unlock();

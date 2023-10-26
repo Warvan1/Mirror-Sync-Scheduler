@@ -88,7 +88,7 @@ bool Schedule::verify(std::vector<Task> &tasks){
     return true;
 }
 
-void Schedule::nextJob(std::vector<std::string> &name, int &seconds_to_sleep){
+std::vector<std::string> * Schedule::nextJob(int &seconds_to_sleep){
     double total_seconds_day = 86400.0;
 
     //calculate seconds_since_midnight
@@ -115,12 +115,11 @@ void Schedule::nextJob(std::vector<std::string> &name, int &seconds_to_sleep){
         //sleep till midnight
         //total seconds in a day - currient time in seconds cast to an interger and added 1
         seconds_to_sleep = (int)(total_seconds_day - (scheduleTime * total_seconds_day)) + 1;
-        name = jobs[jobs.size()-1].name;
-        return;
+        return &(jobs[jobs.size()-1].name);
     }
 
     //sleep till next job
     //target time in seconds - currient time in seconds cast to an interger and added 1
     seconds_to_sleep = (int)((jobs[iterator].target_time * total_seconds_day) - (scheduleTime * total_seconds_day)) + 1;
-    name = jobs[iterator-1].name;
+    return &(jobs[iterator-1].name);
 }

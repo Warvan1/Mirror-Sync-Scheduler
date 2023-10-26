@@ -16,7 +16,7 @@ class Schedule{
 
     bool verify(std::vector<Task> &tasks);
 
-    void nextJob(std::vector<std::string> &name, int &seconds_to_sleep);
+    std::vector<std::string> * nextJob(int &seconds_to_sleep);
 
     private:
     int iterator;

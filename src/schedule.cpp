@@ -38,21 +38,19 @@ Schedule::Schedule(std::vector<Task> &tasks): iterator(0){
         lcm = lcm * syncs / a;
     }
 
-    double interval = 1.0/total_jobs;
-    int jobNumber = 0;
+    double interval = 1.0/lcm;
     for(int i = 0; i < lcm; i++){
         // std::cout << "---------" << i << "-------------" << std::endl;
+        Job job;
         for(int j = 0; j < tasks.size(); j++){
             Task task = tasks[j];
             if(i%(lcm/task.syncs) == 0){
                 // std::cout << tasks[j].syncs << " " << tasks[j].name << std::endl;
-                Job job;
-                job.name = task.name;
-                job.target_time = interval * jobNumber;
-                jobs.push_back(job); //jobs is a vector<Job> created in the class
-                jobNumber++;
+                job.name.push_back(task.name);
             }
         }
+        job.target_time = interval * i;
+        jobs.push_back(job); //jobs is a vector<Job> created in the class
     }
 }
 
@@ -73,8 +71,10 @@ bool Schedule::verify(std::vector<Task> &tasks){
         }
         prev_start_time = jobs[i].target_time;
 
-        //increment the appropriate task in our map for each job
-        taskMap.find(jobs[i].name)->second++;
+        //increment the appropriate task in our map for each name in our job name vector
+        for(int j = 0; j < jobs[i].name.size(); j++){
+            taskMap.find(jobs[i].name[j])->second++;
+        }
     }
 
     //check that each job is scheduled the correct number of times
@@ -88,7 +88,7 @@ bool Schedule::verify(std::vector<Task> &tasks){
     return true;
 }
 
-void Schedule::nextJob(std::string &name, int &seconds_to_sleep){
+void Schedule::nextJob(std::vector<std::string> &name, int &seconds_to_sleep){
     double total_seconds_day = 86400.0;
 
     //calculate seconds_since_midnight

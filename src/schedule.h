@@ -6,7 +6,7 @@ struct Task{
 };
 
 struct Job{
-    std::string name;
+    std::vector<std::string> name;
     double target_time;
 };
 
@@ -16,7 +16,7 @@ class Schedule{
 
     bool verify(std::vector<Task> &tasks);
 
-    void nextJob(std::string &name, int &seconds_to_sleep);
+    void nextJob(std::vector<std::string> &name, int &seconds_to_sleep);
 
     private:
     int iterator;

@@ -1,5 +1,4 @@
 #include <iostream>
-#include <fstream>
 #include <vector>
 #include <string>
 #include <chrono>
@@ -12,16 +11,10 @@ using json = nlohmann::json;
 
 #include "schedule.h"
 #include "rsync.h"
+#include "mirrors.h"
 
 //mutex lock for threads
 std::mutex tLock;
-
-//prints a json object
-void printJson(json object){
-    for (auto& x : object.items()){
-        std::cout << "key: " << x.key() << ", value: " << x.value() << '\n';
-    }
-}
 
 // runs in a seperate thread
 // if there is a job in the queue it gets ran and then removed from the front of the queue in a loop
@@ -33,7 +26,7 @@ void jobQueueThread(std::list<std::string> &queue, json &config){
 
         if(!queueEmpty){
             //run the first job in the queue
-            syncProject(queue.front(), config);
+            syncProject(queue.front(), config[queue.front()]);
             //remove first item from queue
             tLock.lock();
             queue.pop_front();
@@ -48,31 +41,9 @@ void jobQueueThread(std::list<std::string> &queue, json &config){
 
 int main(){
     //read in mirrors.json from file
-    std::ifstream f("configs/mirrors.json");
-    json config = json::parse(f);
-    f.close();
-
-    //create Task vector
-    std::vector<Task> tasks;
-    //create a vector of task structs from mirrors.json
-    for (auto& x : config["mirrors"].items()){
-        json Xvalue = x.value();
-        json rsync = Xvalue["rsync"];
-        json script = Xvalue["script"];
-
-        if(!rsync.is_null()){
-            Task task;
-            task.name = x.key();
-            task.syncs = rsync.value("syncs_per_day", 0);
-            tasks.push_back(task);
-        }
-        else if(!script.is_null()){
-            Task task;
-            task.name = x.key();
-            task.syncs = script.value("syncs_per_day", 0);
-            tasks.push_back(task);
-        }
-    }
+    json config = readMirrors();
+    //create Task vector from mirrors.json
+    std::vector<Task> tasks = parseTasks(config);
 
     //create a new schedule
     Schedule schedule(tasks);

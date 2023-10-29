@@ -6,6 +6,7 @@ add_executable(${PROJECT_NAME}
     src/schedule.cpp
     src/rsync.cpp
     src/mirrors.cpp
+    src/queue.cpp
 )
 
 include(FetchContent)

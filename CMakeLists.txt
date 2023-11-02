@@ -17,4 +17,9 @@ FetchContent_Declare(json
 )
 FetchContent_MakeAvailable(json)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+add_subdirectory(mirror-logging)
+
+target_link_libraries(${PROJECT_NAME} 
+    PUBLIC mirror_logging
+    PRIVATE nlohmann_json::nlohmann_json
+)

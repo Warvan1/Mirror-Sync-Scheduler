@@ -6,12 +6,17 @@
 #include <mutex>
 #include <list>
 #include <algorithm>
+#include <memory>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
+#include <mirror/logger.h>
 
 #include "queue.h"
 #include "rsync.h"
+
+//initialize connection to log server
+std::shared_ptr<mirror::Logger> logger = mirror::Logger::getInstance();
 
 Queue::Queue(){}
 
@@ -56,6 +61,8 @@ void Queue::jobQueueThread(json &config, std::size_t maxThreads){
                 if(std::find(currentJobs.begin(), currentJobs.end(), jobName) == currentJobs.end()){
                     //run the job within our threadpool
                     syncThreads.push_back(std::thread(syncProject, jobName, std::ref(config[jobName])));
+                    //test log
+                    logger->info(jobName + " started");
                     //add job to current jobs
                     currentJobs.push_back(jobName);
                 }

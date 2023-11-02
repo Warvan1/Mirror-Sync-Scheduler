@@ -4,9 +4,11 @@
 
 class Schedule{
     public:
-    Schedule(std::vector<Task> &tasks);
+    Schedule();
 
-    bool verify(std::vector<Task> &tasks);
+    void build(json config);
+
+    bool verify(json config);
 
     std::vector<std::string> * nextJob(int &seconds_to_sleep);
 

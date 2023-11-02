@@ -4,10 +4,19 @@
 #include <map>
 #include <ctime>
 
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
 #include "schedule.h"
+#include "mirrors.h"
 
 //build a schedule of jobs spaced evenly throuout the day
-Schedule::Schedule(std::vector<Task> &tasks): iterator(0){
+Schedule::Schedule(): iterator(0){}
+
+void Schedule::build(json config){
+    //create Task vector from mirrors.json
+    std::vector<Task> tasks = parseTasks(config);
+
     //calculate the total number of jobs
     int total_jobs = 0;
     for(int i = 0; i < tasks.size(); i++){
@@ -56,7 +65,9 @@ Schedule::Schedule(std::vector<Task> &tasks): iterator(0){
 
 //verify that the job schedule schedules each job the correct number of times.
 //verify that the job.start_time increases for each job and 0 <= start_time <= 1
-bool Schedule::verify(std::vector<Task> &tasks){
+bool Schedule::verify(json config){
+    //create Task vector from mirrors.json
+    std::vector<Task> tasks = parseTasks(config);
     //create a map of tasks
     std::map<std::string, int> taskMap;
     for(int i = 0; i < tasks.size(); i++){

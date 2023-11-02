@@ -7,7 +7,7 @@
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
-#include <mirror/logger.h>
+#include <mirror/logger.h>    
 
 #include "schedule.h"
 #include "mirrors.h"
@@ -26,13 +26,7 @@ int main(){
     schedule.build(config);
     //verify that the schedule passes sanity checks
     bool success = schedule.verify(config);
-    std::cout << success << std::endl;
-    if(success){
-        logger->info("created and verified schedule.");
-    }
-    else{
-        logger->info("failed to create or verified schedule.");
-    }
+    if(!success) return 1;
 
     //create job queue class
     Queue queue;

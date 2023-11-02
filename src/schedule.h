@@ -15,4 +15,6 @@ class Schedule{
     private:
     int iterator;
     std::vector<Job> jobs;
+    //connection to log server
+    std::shared_ptr<mirror::Logger> logger = mirror::Logger::getInstance();
 };

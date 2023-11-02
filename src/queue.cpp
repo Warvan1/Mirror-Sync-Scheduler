@@ -15,9 +15,6 @@ using json = nlohmann::json;
 #include "queue.h"
 #include "rsync.h"
 
-//initialize connection to log server
-std::shared_ptr<mirror::Logger> logger = mirror::Logger::getInstance();
-
 Queue::Queue(){}
 
 //used to add a list of jobs to the queue
@@ -60,9 +57,7 @@ void Queue::jobQueueThread(json &config, std::size_t maxThreads){
                 //check to make sure that jobName is not in currentJobs already
                 if(std::find(currentJobs.begin(), currentJobs.end(), jobName) == currentJobs.end()){
                     //run the job within our threadpool
-                    syncThreads.push_back(std::thread(syncProject, jobName, std::ref(config[jobName])));
-                    //test log
-                    logger->info(jobName + " started");
+                    syncThreads.push_back(std::thread(syncProject, jobName, std::ref(config[jobName]), logger));
                     //add job to current jobs
                     currentJobs.push_back(jobName);
                 }
@@ -96,7 +91,7 @@ void Queue::jobQueueThread_single(json &config){
             tLock.unlock();
 
             //run the first job in the queue
-            syncProject(jobName, config[jobName]);
+            syncProject(jobName, config[jobName], logger);
         }
 
         //sleep for 5 seconds so that we arnt running constantly and to prevent constant locking

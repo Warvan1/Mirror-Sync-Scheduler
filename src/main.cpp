@@ -24,9 +24,6 @@ int main(){
     //create and build new schedule
     Schedule schedule;
     schedule.build(config);
-    //verify that the schedule passes sanity checks
-    bool success = schedule.verify(config);
-    if(!success) return 1;
 
     //create job queue class
     Queue queue;

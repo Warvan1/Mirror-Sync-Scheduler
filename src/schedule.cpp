@@ -63,6 +63,9 @@ void Schedule::build(json config){
         job.target_time = interval * i;
         jobs.push_back(job); //jobs is a vector<Job> created in the class
     }
+
+    //verify that the schedule works
+    bool success = verify(config);
 }
 
 //verify that the job schedule schedules each job the correct number of times.

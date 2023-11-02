@@ -3,15 +3,21 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <memory>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
+#include <mirror/logger.h>
 
 #include "schedule.h"
 #include "mirrors.h"
 #include "queue.h"
 
 int main(){
+    //initialize and configure connection to log server
+    std::shared_ptr<mirror::Logger> logger = mirror::Logger::getInstance();
+    logger->configure(4357, "sync-scheduler");
+
     //read in mirrors.json from file
     json config = readMirrors();
     //create Task vector from mirrors.json
@@ -22,6 +28,7 @@ int main(){
     //verify that the schedule passes sanity checks
     bool success = schedule.verify(tasks);
     std::cout << success << std::endl;
+    logger->info("created and verified schedule.");
 
     //create job queue class
     Queue queue;

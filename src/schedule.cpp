@@ -15,6 +15,14 @@ using json = nlohmann::json;
 //build a schedule of jobs spaced evenly throuout the day
 Schedule::Schedule(): iterator(0){}
 
+//create an instance of Schedule the first time its ran on the heap
+//every other time its ran it returns that same instance
+std::shared_ptr<Schedule> Schedule::getInstance(){
+    //a static variable is not updated when getInstance is called a second time
+    static std::shared_ptr<Schedule> schedule(new Schedule());
+    return schedule;
+}
+
 void Schedule::build(json config){
     //create Task vector from mirrors.json
     std::vector<Task> tasks = parseTasks(config);

@@ -4,8 +4,15 @@
 #include <list>
 
 class Queue{
-    public:
+    private:
     Queue();
+
+    public:
+    //delete copy and move constructors
+    Queue(Queue&) = delete;
+    Queue(Queue&&) = delete;
+
+    static std::shared_ptr<Queue> getInstance();
 
     void push_back_list(std::vector<std::string> * name);
 

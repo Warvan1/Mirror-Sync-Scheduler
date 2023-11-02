@@ -17,6 +17,14 @@ using json = nlohmann::json;
 
 Queue::Queue(){}
 
+//create an instance of Queue the first time its ran on the heap
+//every other time its ran it returns that same instance
+std::shared_ptr<Queue> Queue::getInstance(){
+    //a static variable is not updated when getInstance is called a second time
+    static std::shared_ptr<Queue> queue(new Queue());
+    return queue;
+}
+
 //used to add a list of jobs to the queue
 void Queue::push_back_list(std::vector<std::string> * name){
     tLock.lock();

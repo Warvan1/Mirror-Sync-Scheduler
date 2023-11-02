@@ -3,8 +3,15 @@
 #include "structs.h"
 
 class Schedule{
-    public:
+    private:
     Schedule();
+    
+    public:
+    //delete copy and move constructors
+    Schedule(Schedule&) = delete;
+    Schedule(Schedule&&) = delete;
+
+    static std::shared_ptr<Schedule> getInstance();
 
     void build(json config);
 

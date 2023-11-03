@@ -12,7 +12,7 @@ class Queue{
     Queue(Queue&) = delete;
     Queue(Queue&&) = delete;
 
-    static std::shared_ptr<Queue> getInstance();
+    static Queue& getInstance();
 
     void push_back_list(std::vector<std::string> * name);
 
@@ -24,5 +24,5 @@ class Queue{
     std::mutex tLock;
     std::list<std::string> queue_;
     //connection to log server
-    std::shared_ptr<mirror::Logger> logger = mirror::Logger::getInstance();
+    mirror::Logger& logger = mirror::Logger::getInstance();
 };

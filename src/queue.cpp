@@ -6,7 +6,6 @@
 #include <mutex>
 #include <list>
 #include <algorithm>
-#include <memory>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -19,9 +18,9 @@ Queue::Queue(){}
 
 //create an instance of Queue the first time its ran on the heap
 //every other time its ran it returns that same instance
-std::shared_ptr<Queue> Queue::getInstance(){
+Queue& Queue::getInstance(){
     //a static variable is not updated when getInstance is called a second time
-    static std::shared_ptr<Queue> queue(new Queue());
+    static Queue queue;
     return queue;
 }
 
@@ -65,7 +64,7 @@ void Queue::jobQueueThread(json &config, std::size_t maxThreads){
                 //check to make sure that jobName is not in currentJobs already
                 if(std::find(currentJobs.begin(), currentJobs.end(), jobName) == currentJobs.end()){
                     //run the job within our threadpool
-                    syncThreads.push_back(std::thread(syncProject, jobName, std::ref(config[jobName]), logger));
+                    syncThreads.push_back(std::thread(syncProject, jobName, std::ref(config[jobName]), std::ref(logger)));
                     //add job to current jobs
                     currentJobs.push_back(jobName);
                 }

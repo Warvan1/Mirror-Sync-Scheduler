@@ -3,7 +3,6 @@
 #include <string>
 #include <map>
 #include <ctime>
-#include <memory>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -17,9 +16,9 @@ Schedule::Schedule(): iterator(0){}
 
 //create an instance of Schedule the first time its ran on the heap
 //every other time its ran it returns that same instance
-std::shared_ptr<Schedule> Schedule::getInstance(){
+Schedule& Schedule::getInstance(){
     //a static variable is not updated when getInstance is called a second time
-    static std::shared_ptr<Schedule> schedule(new Schedule());
+    static Schedule schedule;
     return schedule;
 }
 
@@ -91,7 +90,7 @@ bool Schedule::verify(json config){
     for(int i = 0; i < jobs.size(); i++){
         //check that start_time increases and that 0.0 <= start_time <= 1.0
         if(!(prev_start_time <= jobs[i].target_time <= 1.0)){
-            logger->error("failed to create or verify schedule.");
+            logger.error("failed to create or verify schedule.");
             return false;
         }
         prev_start_time = jobs[i].target_time;
@@ -105,13 +104,13 @@ bool Schedule::verify(json config){
     //check that each job is scheduled the correct number of times
     for(int i = 0; i < tasks.size(); i++){
         if(tasks[i].syncs != taskMap.find(tasks[i].name)->second){
-            logger->error("failed to create or verify schedule.");
+            logger.error("failed to create or verify schedule.");
             return false;
         }
         // std::cout << taskMap.find(tasks[i].name)->first << " " <<  taskMap.find(tasks[i].name)->second << " " << tasks[i].syncs << std::endl;
     }
     
-    logger->info("created and verified schedule.");
+    logger.info("created and verified schedule.");
     return true;
 }
 

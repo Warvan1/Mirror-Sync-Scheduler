@@ -11,7 +11,7 @@ class Schedule{
     Schedule(Schedule&) = delete;
     Schedule(Schedule&&) = delete;
 
-    static std::shared_ptr<Schedule> getInstance();
+    static Schedule& getInstance();
 
     void build(json config);
 
@@ -23,5 +23,5 @@ class Schedule{
     int iterator;
     std::vector<Job> jobs;
     //connection to log server
-    std::shared_ptr<mirror::Logger> logger = mirror::Logger::getInstance();
+    mirror::Logger& logger = mirror::Logger::getInstance();
 };

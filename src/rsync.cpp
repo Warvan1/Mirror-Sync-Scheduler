@@ -3,7 +3,6 @@
 #include <string>
 #include <chrono>
 #include <thread>
-#include <memory>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -12,12 +11,12 @@ using json = nlohmann::json;
 #include "rsync.h"
 #include "mirrors.h"
 
-void syncProject(std::string name, json &config, std::shared_ptr<mirror::Logger> logger){
+void syncProject(std::string name, json &config, mirror::Logger& logger){
     //do rsync task here
     std::cout << name << " started" << std::endl;
-    logger->info(name + " started");
+    logger.info(name + " started");
     std::this_thread::sleep_for(std::chrono::seconds(10));
     printJson(config);
     std::cout << name << " completed" << std::endl;
-    logger->info(name + " completed");
+    logger.info(name + " completed");
 }

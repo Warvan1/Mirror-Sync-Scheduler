@@ -34,6 +34,20 @@ void Queue::push_back_list(std::vector<std::string> * name){
     tLock.unlock();
 }
 
+//start the job queue thread
+void Queue::startQueue(json &config, std::size_t maxThreads){
+    //start single threaded queue on detatched thread
+    if(maxThreads == 1){
+        std::thread t(&Queue::jobQueueThread_single, this, std::ref(config));
+        t.detach();
+    }
+    //start multithreaded queue on detatched thread
+    else{
+        std::thread t(&Queue::jobQueueThread, this, std::ref(config), maxThreads);
+        t.detach();
+    }
+}
+
 //checks the queue every 5 seconds and runs any added jobs 
 //using threads to run up to "maxThreads" in parallel
 void Queue::jobQueueThread(json &config, std::size_t maxThreads){

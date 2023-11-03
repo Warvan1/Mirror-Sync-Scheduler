@@ -16,6 +16,8 @@ class Queue{
 
     void push_back_list(std::vector<std::string> * name);
 
+    void startQueue(json &config, std::size_t maxThreads);
+
     void jobQueueThread(json &config, std::size_t maxThreads);
 
     void jobQueueThread_single(json &config);

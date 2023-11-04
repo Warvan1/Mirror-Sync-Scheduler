@@ -22,15 +22,13 @@ int main(){
 
     //create and build new schedule
     Schedule& schedule = Schedule::getInstance();
+    //build the schedule based on the mirrors.json config
     schedule.build(config);
 
     //create job queue class
     Queue& queue = Queue::getInstance();
-    //launch jobqueueThread on seperate thread 
-    //jobqueueThread runs all the jobs that get entered into the queue
-    std::thread jt(&Queue::jobQueueThread, &queue, std::ref(config), 4);
-    //run the below thread instead if you want to only use a single thread on the queue
-    // std::thread jt(&Queue::jobQueueThread_single, &queue, std::ref(config));
+    //start the queue (second parameter is number of threads)
+    queue.startQueue(config, 4);
 
     std::vector<std::string> *name;
     int seconds_to_sleep;
@@ -50,9 +48,6 @@ int main(){
         //add job names to job queue
         queue.push_back_list(name);
     }
-
-    //join our job queue thread before we end the program.
-    jt.join();
     
     return 0;
 }

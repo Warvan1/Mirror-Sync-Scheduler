@@ -18,14 +18,14 @@ Queue::Queue(){}
 
 //create an instance of Queue the first time its ran on the heap
 //every other time its ran it returns that same instance
-Queue& Queue::getInstance(){
+Queue* Queue::getInstance(){
     //a static variable is not updated when getInstance is called a second time
     static Queue queue;
-    return queue;
+    return &queue;
 }
 
 //used to add a list of jobs to the queue
-void Queue::push_back_list(std::vector<std::string> * name){
+void Queue::push_back_list(std::vector<std::string>* name){
     tLock.lock();
     for(int i = 0; i < name->size(); i++){
         queue_.push_back((*name)[i]);

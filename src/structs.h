@@ -1,8 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <string>
-
 struct Task{
     std::string name;
     int syncs;

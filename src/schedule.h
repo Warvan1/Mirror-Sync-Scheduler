@@ -11,13 +11,13 @@ class Schedule{
     Schedule(Schedule&) = delete;
     Schedule(Schedule&&) = delete;
 
-    static Schedule& getInstance();
+    static Schedule* getInstance();
 
     void build(json config);
 
     bool verify(json config);
 
-    std::vector<std::string> * nextJob(int &seconds_to_sleep);
+    std::vector<std::string>* nextJob(int &seconds_to_sleep);
 
     private:
     int iterator;

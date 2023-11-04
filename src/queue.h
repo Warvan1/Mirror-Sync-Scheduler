@@ -1,6 +1,5 @@
 #pragma once
 
-#include <mutex>
 #include <list>
 
 class Queue{
@@ -12,9 +11,9 @@ class Queue{
     Queue(Queue&) = delete;
     Queue(Queue&&) = delete;
 
-    static Queue& getInstance();
+    static Queue* getInstance();
 
-    void push_back_list(std::vector<std::string> * name);
+    void push_back_list(std::vector<std::string>* name);
 
     void startQueue(json &config, std::size_t maxThreads);
 

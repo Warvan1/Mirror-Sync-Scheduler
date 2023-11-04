@@ -16,10 +16,10 @@ Schedule::Schedule(): iterator(0){}
 
 //create an instance of Schedule the first time its ran on the heap
 //every other time its ran it returns that same instance
-Schedule& Schedule::getInstance(){
+Schedule* Schedule::getInstance(){
     //a static variable is not updated when getInstance is called a second time
     static Schedule schedule;
-    return schedule;
+    return &schedule;
 }
 
 void Schedule::build(json config){
@@ -114,12 +114,12 @@ bool Schedule::verify(json config){
     return true;
 }
 
-std::vector<std::string> * Schedule::nextJob(int &seconds_to_sleep){
+std::vector<std::string>* Schedule::nextJob(int &seconds_to_sleep){
     double total_seconds_day = 86400.0;
 
     //calculate seconds_since_midnight
     std::time_t now = std::time(0);
-    std::tm *tm_gmt = std::gmtime(&now);
+    std::tm* tm_gmt = std::gmtime(&now);
     int seconds_since_midnight_gmt = tm_gmt->tm_sec + (tm_gmt->tm_min*60) +  (tm_gmt->tm_hour*3600);
 
     //convert seconds_since_midnight to position in the schedule (0.0 <= scheduleTime <= 1.0)

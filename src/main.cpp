@@ -21,20 +21,20 @@ int main(){
     json config = readMirrors();
 
     //create and build new schedule
-    Schedule& schedule = Schedule::getInstance();
+    Schedule* schedule = Schedule::getInstance();
     //build the schedule based on the mirrors.json config
-    schedule.build(config);
+    schedule->build(config);
 
-    //create job queue class
-    Queue& queue = Queue::getInstance();
+    //create a pointer to the job queue class
+    Queue* queue = Queue::getInstance();
     //start the queue (second parameter is number of threads)
-    queue.startQueue(config, 4);
+    queue->startQueue(config, 4);
 
-    std::vector<std::string> *name;
+    std::vector<std::string>* name;
     int seconds_to_sleep;
     while(true){
         //get the name of the next job and how long we have to sleep till the next job from the schedule
-        name = schedule.nextJob(seconds_to_sleep);
+        name = schedule->nextJob(seconds_to_sleep);
 
         //print the next jobs and the time to sleep
         for(int i = 0; i < name->size(); i++){
@@ -46,7 +46,7 @@ int main(){
         std::this_thread::sleep_for(std::chrono::seconds(seconds_to_sleep));
 
         //add job names to job queue
-        queue.push_back_list(name);
+        queue->push_back_list(name);
     }
     
     return 0;

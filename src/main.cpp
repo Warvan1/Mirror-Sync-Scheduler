@@ -14,8 +14,8 @@ using json = nlohmann::json;
 
 int main(){
     //initialize and configure connection to log server
-    mirror::Logger& logger = mirror::Logger::getInstance();
-    logger.configure(4357, "sync-scheduler");
+    mirror::Logger* logger = mirror::Logger::getInstance();
+    logger->configure(4357, "sync-scheduler");
 
     //read in mirrors.json from file
     json config = readMirrors();

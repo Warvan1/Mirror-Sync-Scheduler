@@ -26,5 +26,5 @@ class Queue{
     std::mutex tLock;
     std::list<std::string> queue_;
     //connection to log server
-    mirror::Logger& logger = mirror::Logger::getInstance();
+    mirror::Logger* logger = mirror::Logger::getInstance();
 };

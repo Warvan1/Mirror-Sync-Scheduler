@@ -23,5 +23,5 @@ class Schedule{
     int iterator;
     std::vector<Job> jobs;
     //connection to log server
-    mirror::Logger& logger = mirror::Logger::getInstance();
+    mirror::Logger* logger = mirror::Logger::getInstance();
 };

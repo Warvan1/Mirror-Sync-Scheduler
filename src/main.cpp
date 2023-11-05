@@ -3,6 +3,7 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <signal.h>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -11,6 +12,15 @@ using json = nlohmann::json;
 #include "schedule.h"
 #include "mirrors.h"
 #include "queue.h"
+
+void exit_handler(int s){
+    Queue* queue = Queue::getInstance();
+    queue->setQueueStoped(true);
+    while(queue->getQueueRunning()){
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+    exit(0);
+}
 
 int main(){
     //initialize and configure connection to log server
@@ -29,6 +39,13 @@ int main(){
     Queue* queue = Queue::getInstance();
     //start the queue (second parameter is number of threads)
     queue->startQueue(config, 4);
+
+    //catch ctrl c to perform clean exits
+    struct sigaction sigIntHandler;
+    sigIntHandler.sa_handler = exit_handler;
+    sigemptyset(&sigIntHandler.sa_mask);
+    sigIntHandler.sa_flags = 0;
+    sigaction(SIGINT, &sigIntHandler, NULL);
 
     std::vector<std::string>* name;
     int seconds_to_sleep;

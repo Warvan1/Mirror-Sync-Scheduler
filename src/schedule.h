@@ -15,11 +15,12 @@ class Schedule{
 
     void build(json config);
 
-    bool verify(json config);
-
     std::vector<std::string>* nextJob(int &seconds_to_sleep);
 
-    private:
+    private: //functions
+    bool verify(std::vector<Task> tasks);
+
+    private: //data
     int iterator;
     std::vector<Job> jobs;
     //connection to log server

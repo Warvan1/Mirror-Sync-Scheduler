@@ -3,10 +3,7 @@
 #include <list>
 
 class Queue{
-    private:
-    Queue();
-
-    public:
+    public: //functions
     //delete copy and move constructors
     Queue(Queue&) = delete;
     Queue(Queue&&) = delete;
@@ -17,13 +14,24 @@ class Queue{
 
     void startQueue(json &config, std::size_t maxThreads);
 
+    bool getQueueRunning();
+
+    void setQueueStoped(bool b);
+
+    private: //functions
+    Queue();
+
     void jobQueueThread(json &config, std::size_t maxThreads);
 
     void jobQueueThread_single(json &config);
 
-    private:
+    private: //data
     std::mutex tLock;
     std::list<std::string> queue_;
+    //used to prevent the queue from being started more than once
+    bool queueRunning;
+    //used to stop the queue thread
+    bool queueStoped;
     //connection to log server
     mirror::Logger* logger = mirror::Logger::getInstance();
 };

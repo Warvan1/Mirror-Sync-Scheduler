@@ -72,14 +72,13 @@ void Schedule::build(json config){
     }
 
     //verify that the schedule works
-    bool success = verify(config);
+    bool success = verify(tasks);
 }
 
 //verify that the job schedule schedules each job the correct number of times.
 //verify that the job.start_time increases for each job and 0 <= start_time <= 1
-bool Schedule::verify(json config){
+bool Schedule::verify(std::vector<Task> tasks){
     //create Task vector from mirrors.json
-    std::vector<Task> tasks = parseTasks(config);
     //create a map of tasks
     std::map<std::string, int> taskMap;
     for(int i = 0; i < tasks.size(); i++){

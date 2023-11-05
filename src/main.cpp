@@ -14,11 +14,23 @@ using json = nlohmann::json;
 #include "queue.h"
 
 void exit_handler(int s){
+    //get object pointers
+    mirror::Logger* logger = mirror::Logger::getInstance();
+    Schedule* schedule = Schedule::getInstance();
     Queue* queue = Queue::getInstance();
+    
+    //wait for rsyncs to finsh
+    logger->info("waiting for running rsyncs to finish if there are any.");
     queue->setQueueStoped(true);
     while(queue->getQueueRunning()){
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
+
+    //free schedule and queue from the heap
+    free(schedule);
+    free(queue);
+    
+    //exit the program
     exit(0);
 }
 

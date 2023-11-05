@@ -20,8 +20,8 @@ Queue::Queue(): queueRunning(false), queueStoped(false){}
 //every other time its ran it returns that same instance
 Queue* Queue::getInstance(){
     //a static variable is not updated when getInstance is called a second time
-    static Queue queue;
-    return &queue;
+    static Queue* queue = new Queue;
+    return queue;
 }
 
 //used to check if the queue thread is running

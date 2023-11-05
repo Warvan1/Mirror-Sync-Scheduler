@@ -18,8 +18,8 @@ Schedule::Schedule(): iterator(0){}
 //every other time its ran it returns that same instance
 Schedule* Schedule::getInstance(){
     //a static variable is not updated when getInstance is called a second time
-    static Schedule schedule;
-    return &schedule;
+    static Schedule* schedule = new Schedule;
+    return schedule;
 }
 
 void Schedule::build(json config){

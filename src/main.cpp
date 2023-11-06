@@ -50,7 +50,7 @@ int main(){
     //create a pointer to the job queue class
     Queue* queue = Queue::getInstance();
     //generate the sync command maps
-    queue->createSyncCommandMaps(config);
+    queue->createSyncCommandMap(config);
     //start the queue (second parameter is number of threads)
     queue->startQueue(config, 4);
 

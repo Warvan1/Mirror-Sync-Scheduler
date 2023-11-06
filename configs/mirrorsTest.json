@@ -68,6 +68,59 @@
       "alternative": "http://mirror.lshiy.com/faketwo/",
       "icon": "img/projects/faketwo.svg",
       "torrents": "/storage/faketwo/*/isos/*/"
+    },
+    "eclipse": {
+      "name": "Eclipse",
+      "page": "Software",
+      "rsync": {
+        "host": "download.eclipse.org",
+        "src": "eclipseMirror",
+        "dest": "/storage/eclipse",
+        "options": "-tlvp --no-perms --no-owner --no-group --include='TIME' --exclude='*'",
+        "second": "-rtvp --delete --no-perms --no-owner --no-group",
+        "third": "-tvp --no-perms --no-owner --no-group --include='ztime' --include='ztime/*' --exclude='*'",
+        "syncs_per_day": 1000
+      },
+      "official": true,
+      "homepage": "https://www.eclipse.org/",
+      "color": "#00755e",
+      "publicRsync": true,
+      "alternative": "http://mirror.umd.edu/eclipse/",
+      "icon": "img/projects/eclipse.svg"
+    },
+    "fedora": {
+      "name": "Fedora",
+      "page": "Distributions",
+      "script": {
+        "syncs_per_day": 1000,
+        "command": "./scripts/quick-fedora-mirror/quick-fedora-mirror",
+        "arguments": ["-c", "configs/quick-fedora-mirror.conf"]
+      },
+      "official": true,
+      "homepage": "https://www.fedoraproject.org/",
+      "color": "#0b57a4",
+      "publicRsync": true,
+      "alternative": "http://mirror.rit.edu/fedora/",
+      "icon": "img/projects/fedora.png"
+    },
+    "blender": {
+      "name": "Blender",
+      "page": "Software",
+      "rsync": {
+        "user": "clarksonedu",
+        "host": "download.blender.org",
+        "src": "blender",
+        "dest": "/storage/blender",
+        "options": "-avzrHy --no-perms --no-owner --no-group --exclude \".~tmp~\"",
+        "syncs_per_day": 1000,
+        "password_file": "blender.secret"
+      },
+      "official": true,
+      "homepage": "https://www.blender.org/",
+      "color": "#eb7700",
+      "publicRsync": true,
+      "alternative": "http://mirrors.ocf.berkeley.edu/blender/",
+      "icon": "img/projects/blender.png"
     }
   }
 }

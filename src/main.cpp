@@ -4,6 +4,7 @@
 #include <chrono>
 #include <thread>
 #include <signal.h>
+#include <cstdlib>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -31,7 +32,7 @@ void exit_handler(int s){
     free(queue);
 
     //exit the program
-    exit(s);
+    std::exit(EXIT_SUCCESS);
 }
 
 int main(){

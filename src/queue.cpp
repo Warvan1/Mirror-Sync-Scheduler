@@ -6,6 +6,8 @@
 #include <mutex>
 #include <list>
 #include <algorithm>
+#include <unordered_map>
+#include <stdio.h>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -94,7 +96,7 @@ void Queue::jobQueueThread(json &config, std::size_t maxThreads){
                 //check to make sure that jobName is not in currentJobs already
                 if(std::find(currentJobs.begin(), currentJobs.end(), jobName) == currentJobs.end()){
                     //run the job within our threadpool
-                    syncThreads.push_back(std::thread(syncProject, jobName, std::ref(config[jobName]), std::ref(logger)));
+                    syncThreads.push_back(std::thread(&Queue::syncProject, this, jobName));
                     //add job to current jobs
                     currentJobs.push_back(jobName);
                 }
@@ -132,7 +134,7 @@ void Queue::jobQueueThread_single(json &config){
             tLock.unlock();
 
             //run the first job in the queue
-            syncProject(jobName, config[jobName], logger);
+            syncProject(jobName);
         }
 
         if(queueStoped == true){
@@ -141,5 +143,37 @@ void Queue::jobQueueThread_single(json &config){
         }
         //sleep for 5 seconds so that we arnt running constantly and to prevent constant locking
         std::this_thread::sleep_for(std::chrono::seconds(5));
+    }
+}
+
+//sync a project using the commands from the the syncCommands map
+void Queue::syncProject(std::string name){
+    std::cout << name << " started" << std::endl;
+    logger->info(name + " started");
+
+    //check if name in map for command iteration
+    for(std::string command : syncCommands[name]){
+        //if dry run
+        command = "echo \"" + command + "\"";
+        //run command
+        system(command.c_str());
+    }
+            
+    //if dry run
+    //temporary sleep for testing when doing
+    std::this_thread::sleep_for(std::chrono::seconds(10));
+
+    std::cout << name << " completed" << std::endl;
+    logger->info(name + " completed");
+}
+
+void Queue::createSyncCommandMaps(json &config){
+    //make sure the vector of maps is clear
+    syncCommands.clear();
+
+    //loop through all mirror entries
+    for (auto& x : config.items()){
+        //generate sync commands for each entry and add it to our map
+        syncCommands[x.key()] = generateSyncCommands(config[x.key()]);
     }
 }

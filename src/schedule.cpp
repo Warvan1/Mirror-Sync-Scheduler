@@ -23,6 +23,9 @@ Schedule* Schedule::getInstance(){
 }
 
 void Schedule::build(json config){
+    //clear the jobs vector of any old jobs
+    jobs.clear();
+
     //create Task vector from mirrors.json
     std::vector<Task> tasks = parseTasks(config);
 

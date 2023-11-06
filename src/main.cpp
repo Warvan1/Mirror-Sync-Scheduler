@@ -29,7 +29,7 @@ void exit_handler(int s){
     //free schedule and queue from the heap
     free(schedule);
     free(queue);
-    
+
     //exit the program
     exit(0);
 }
@@ -49,6 +49,8 @@ int main(){
 
     //create a pointer to the job queue class
     Queue* queue = Queue::getInstance();
+    //generate the sync command maps
+    queue->createSyncCommandMaps(config);
     //start the queue (second parameter is number of threads)
     queue->startQueue(config, 4);
 

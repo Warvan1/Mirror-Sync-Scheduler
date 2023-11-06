@@ -14,6 +14,8 @@ class Queue{
 
     void startQueue(json &config, std::size_t maxThreads);
 
+    void createSyncCommandMaps(json &config);
+
     bool getQueueRunning();
 
     void setQueueStoped(bool b);
@@ -25,9 +27,13 @@ class Queue{
 
     void jobQueueThread_single(json &config);
 
+    void syncProject(std::string name);
+
     private: //data
     std::mutex tLock;
     std::list<std::string> queue_;
+    //map of syncCommands
+    std::unordered_map<std::string, std::vector<std::string>> syncCommands;
     //used to prevent the queue from being started more than once
     bool queueRunning;
     //used to stop the queue thread

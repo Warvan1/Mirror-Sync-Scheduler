@@ -14,8 +14,6 @@ class Queue{
 
     void startQueue(json &config, std::size_t maxThreads);
 
-    void syncProject(std::string name);
-
     void createSyncCommandMaps(json &config);
 
     bool getQueueRunning();
@@ -28,6 +26,8 @@ class Queue{
     void jobQueueThread(json &config, std::size_t maxThreads);
 
     void jobQueueThread_single(json &config);
+
+    void syncProject(std::string name);
 
     private: //data
     std::mutex tLock;

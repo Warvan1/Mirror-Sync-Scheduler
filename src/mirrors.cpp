@@ -18,7 +18,7 @@ void printJson(json object){
 //read mirrors.json in from file
 json readMirrors(){
     //read in mirrors.json from file
-    std::ifstream f("configs/mirrors.json");
+    std::ifstream f("configs/mirrorsTest.json");
     json config = json::parse(f);
     f.close();
     return config["mirrors"];

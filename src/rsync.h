@@ -1,3 +1,3 @@
 #pragma once
 
-void syncProject(std::string name, json &config, mirror::Logger* logger);
+std::vector<std::string> generateSyncCommands(json &config);

@@ -14,7 +14,6 @@ using json = nlohmann::json;
 #include <mirror/logger.h>
 
 #include "queue.h"
-// #include "rsync.h"
 
 Queue::Queue(): queueRunning(false), queueStoped(false){}
 

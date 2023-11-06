@@ -31,7 +31,7 @@ void exit_handler(int s){
     free(queue);
 
     //exit the program
-    exit(0);
+    exit(s);
 }
 
 int main(){
@@ -55,11 +55,7 @@ int main(){
     queue->startQueue(config, 4);
 
     //catch ctrl c to perform clean exits
-    struct sigaction sigIntHandler;
-    sigIntHandler.sa_handler = exit_handler;
-    sigemptyset(&sigIntHandler.sa_mask);
-    sigIntHandler.sa_flags = 0;
-    sigaction(SIGINT, &sigIntHandler, NULL);
+    signal(SIGINT, exit_handler);
 
     std::vector<std::string>* name;
     int seconds_to_sleep;

@@ -76,6 +76,12 @@ void Schedule::build(json config){
 
     //verify that the schedule works
     bool success = verify(tasks);
+    if(success == true){
+        logger->info("created and verified schedule.");
+    }
+    else{
+        logger->error("failed to create or verify schedule.");
+    }
 }
 
 //verify that the job schedule schedules each job the correct number of times.
@@ -92,7 +98,6 @@ bool Schedule::verify(std::vector<Task> tasks){
     for(int i = 0; i < jobs.size(); i++){
         //check that start_time increases and that 0.0 <= start_time <= 1.0
         if(!(prev_start_time <= jobs[i].target_time <= 1.0)){
-            logger->error("failed to create or verify schedule.");
             return false;
         }
         prev_start_time = jobs[i].target_time;
@@ -106,13 +111,11 @@ bool Schedule::verify(std::vector<Task> tasks){
     //check that each job is scheduled the correct number of times
     for(int i = 0; i < tasks.size(); i++){
         if(tasks[i].syncs != taskMap.find(tasks[i].name)->second){
-            logger->error("failed to create or verify schedule.");
             return false;
         }
         // std::cout << taskMap.find(tasks[i].name)->first << " " <<  taskMap.find(tasks[i].name)->second << " " << tasks[i].syncs << std::endl;
     }
     
-    logger->info("created and verified schedule.");
     return true;
 }
 

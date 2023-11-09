@@ -46,16 +46,16 @@ void temp_cin_thread(){
 }
 
 int main(){
-    //initialize and configure connection to log server
-    mirror::Logger* logger = mirror::Logger::getInstance();
-    logger->configure(4357, "sync-scheduler");
-
     //read in mirrors.json from file
     json config_all = readMirrors("configs/mirrors.json");
     json config = config_all["mirrors"];
 
     //read env data in from env.json
     json env = readMirrors("configs/env.json");
+
+    //initialize and configure connection to log server
+    mirror::Logger* logger = mirror::Logger::getInstance();
+    logger->configure(env["logServerPort"], "sync-scheduler");
 
     //create and build new schedule
     Schedule* schedule = Schedule::getInstance();

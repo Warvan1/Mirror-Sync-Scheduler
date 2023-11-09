@@ -16,12 +16,12 @@ void printJson(json object){
 }
 
 //read mirrors.json in from file
-json readMirrors(){
+json readMirrors(std::string filename){
     //read in mirrors.json from file
-    std::ifstream f("configs/mirrors.json");
+    std::ifstream f(filename);
     json config = json::parse(f);
     f.close();
-    return config["mirrors"];
+    return config;
 }
 
 //read mirrors.json into a list of tasks

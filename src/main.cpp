@@ -51,7 +51,11 @@ int main(){
     logger->configure(4357, "sync-scheduler");
 
     //read in mirrors.json from file
-    json config = readMirrors();
+    json config_all = readMirrors("configs/mirrors.json");
+    json config = config_all["mirrors"];
+
+    //read env data in from env.json
+    json env = readMirrors("configs/env.json");
 
     //create and build new schedule
     Schedule* schedule = Schedule::getInstance();
@@ -60,10 +64,12 @@ int main(){
 
     //create a pointer to the job queue class
     Queue* queue = Queue::getInstance();
+    //set queue dryrun
+    queue->setDryrun(env["dryrun"]);
     //generate the sync command maps
     queue->createSyncCommandMap(config);
     //start the queue (second parameter is number of threads)
-    queue->startQueue(config, 4);
+    queue->startQueue(config, env["queueThreads"]);
 
     //catch ctrl c to perform clean exits
     signal(SIGINT, exit_handler);

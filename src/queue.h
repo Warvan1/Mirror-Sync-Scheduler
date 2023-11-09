@@ -24,6 +24,8 @@ class Queue{
 
     void setQueueStoped(bool b);
 
+    void setDryrun(bool dr);
+
     private: //functions
     Queue();
 
@@ -46,6 +48,8 @@ class Queue{
     bool queueRunning;
     //used to stop the queue thread
     bool queueStoped;
+    //used to run program as a "dry run"
+    bool dryrun;
     //connection to log server
     mirror::Logger* logger = mirror::Logger::getInstance();
 };

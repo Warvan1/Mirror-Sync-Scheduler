@@ -4,6 +4,6 @@
 
 void printJson(json object);
 
-json readMirrors();
+json readMirrors(std::string filename);
 
 std::vector<Task> parseTasks(json &config);

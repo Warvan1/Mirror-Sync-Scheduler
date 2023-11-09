@@ -35,6 +35,11 @@ void Queue::setQueueStoped(bool b){
     queueStoped = b;
 }
 
+//set the dryrun variable
+void Queue::setDryrun(bool dr){
+    dryrun = dr;
+}
+
 //used to add a list of jobs to the queue
 void Queue::push_back_list(std::vector<std::string>* name){
     tLock.lock();
@@ -172,15 +177,17 @@ void Queue::syncProject(std::string name){
 
     //check if name in map for command iteration
     for(std::string command : syncCommands[name]){
-        //if dry run
-        command = "echo \"" + command + "\"";
+        if(dryrun == true){
+            command = "echo \"" + command + "\"";  
+        }
         //run command
         system(command.c_str());
     }
             
-    //if dry run
     //temporary sleep for testing when doing
-    std::this_thread::sleep_for(std::chrono::seconds(10));
+    if(dryrun == true){
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+    }
 
     std::cout << name << " completed" << std::endl;
     logger->info(name + " completed");

@@ -39,7 +39,27 @@ void Queue::setQueueStoped(bool b){
 void Queue::push_back_list(std::vector<std::string>* name){
     tLock.lock();
     for(int i = 0; i < name->size(); i++){
-        queue_.push_back((*name)[i]);
+        auto search = syncCommands.find((*name)[i]);
+        if(search != syncCommands.end()){ //check to make sure that given string is in syncCommands
+            queue_.push_back((*name)[i]);
+        }
+        else{
+            logger->warn((*name)[i] + " is not valid");
+        }
+    }
+    std::cout << queue_.size() << std::endl;
+    tLock.unlock();
+}
+
+//used by manual sync to add a task to the front of the queue
+void Queue::push_front_single(std::string &s){
+    tLock.lock();
+    auto search = syncCommands.find(s);
+    if(search != syncCommands.end()){ //check to make sure that given string is in syncCommands
+        queue_.push_front(s);
+    }
+    else{
+        logger->warn(s + " is not valid");
     }
     std::cout << queue_.size() << std::endl;
     tLock.unlock();

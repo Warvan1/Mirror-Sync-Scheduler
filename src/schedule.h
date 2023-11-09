@@ -10,6 +10,8 @@ class Schedule{
     //delete copy and move constructors
     Schedule(Schedule&) = delete;
     Schedule(Schedule&&) = delete;
+    Schedule &operator=(const Schedule &) = delete;
+    Schedule &operator=(const Schedule &&) = delete;
 
     static Schedule* getInstance();
 

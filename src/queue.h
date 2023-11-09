@@ -7,10 +7,14 @@ class Queue{
     //delete copy and move constructors
     Queue(Queue&) = delete;
     Queue(Queue&&) = delete;
+    Queue &operator=(const Queue &) = delete;
+    Queue &operator=(const Queue &&) = delete;
 
     static Queue* getInstance();
 
     void push_back_list(std::vector<std::string>* name);
+
+    void push_front_single(std::string &s);
 
     void startQueue(json &config, std::size_t maxThreads);
 

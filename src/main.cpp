@@ -35,6 +35,16 @@ void exit_handler(int s){
     std::exit(EXIT_SUCCESS);
 }
 
+//temp function to handle std::cin in a seperate thread
+void temp_cin_thread(){
+    Queue* queue = Queue::getInstance();
+    while(true){
+        std::string x;
+        std::cin >> x;
+        queue->push_front_single(x);
+    }
+}
+
 int main(){
     //initialize and configure connection to log server
     mirror::Logger* logger = mirror::Logger::getInstance();
@@ -57,6 +67,9 @@ int main(){
 
     //catch ctrl c to perform clean exits
     signal(SIGINT, exit_handler);
+
+    //temp cin thread for manual sync
+    std::thread ct(temp_cin_thread);
 
     std::vector<std::string>* name;
     int seconds_to_sleep;

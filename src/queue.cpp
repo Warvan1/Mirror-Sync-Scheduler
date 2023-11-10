@@ -15,7 +15,7 @@ using json = nlohmann::json;
 
 #include "queue.h"
 
-Queue::Queue(): queueRunning(false), queueStoped(false){}
+Queue::Queue(): queueRunning(false){}
 
 //create an instance of Queue the first time its ran on the heap
 //every other time its ran it returns that same instance
@@ -23,16 +23,6 @@ Queue* Queue::getInstance(){
     //a static variable is not updated when getInstance is called a second time
     static Queue* queue = new Queue;
     return queue;
-}
-
-//used to check if the queue thread is running
-bool Queue::getQueueRunning(){
-    return queueRunning;
-}
-
-//used to stop the queue thread
-void Queue::setQueueStoped(bool b){
-    queueStoped = b;
 }
 
 //set the dryrun variable
@@ -87,7 +77,6 @@ void Queue::startQueue(json &config, std::size_t maxThreads){
         t.detach();
     }
     queueRunning = true;
-    queueStoped = false;
 }
 
 //checks the queue every 5 seconds and runs any added jobs 
@@ -132,10 +121,6 @@ void Queue::jobQueueThread(json &config, std::size_t maxThreads){
             }
         }
 
-        if(queueStoped == true){
-            queueRunning = false;
-            return;
-        }
         //sleep for 5 seconds so that we arnt running constantly and to prevent constant locking
         std::this_thread::sleep_for(std::chrono::seconds(5));
     }
@@ -161,10 +146,6 @@ void Queue::jobQueueThread_single(json &config){
             syncProject(jobName);
         }
 
-        if(queueStoped == true){
-            queueRunning = false;
-            return;
-        }
         //sleep for 5 seconds so that we arnt running constantly and to prevent constant locking
         std::this_thread::sleep_for(std::chrono::seconds(5));
     }

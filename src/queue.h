@@ -20,10 +20,6 @@ class Queue{
 
     void createSyncCommandMap(json &config);
 
-    bool getQueueRunning();
-
-    void setQueueStoped(bool b);
-
     void setDryrun(bool dr);
 
     private: //functions
@@ -46,8 +42,6 @@ class Queue{
     std::unordered_map<std::string, std::vector<std::string>> syncCommands;
     //used to prevent the queue from being started more than once
     bool queueRunning;
-    //used to stop the queue thread
-    bool queueStoped;
     //used to run program as a "dry run"
     bool dryrun;
     //connection to log server

@@ -3,7 +3,7 @@
 #include <string>
 #include <chrono>
 #include <thread>
-#include <signal.h>
+// #include <signal.h>
 #include <cstdlib>
 
 #include <nlohmann/json.hpp>
@@ -13,27 +13,6 @@ using json = nlohmann::json;
 #include "schedule.h"
 #include "mirrors.h"
 #include "queue.h"
-
-void exit_handler(int s){
-    //get object pointers
-    mirror::Logger* logger = mirror::Logger::getInstance();
-    Schedule* schedule = Schedule::getInstance();
-    Queue* queue = Queue::getInstance();
-    
-    //wait for rsyncs to finsh
-    logger->info("waiting for running rsyncs to finish if there are any.");
-    queue->setQueueStoped(true);
-    while(queue->getQueueRunning()){
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-
-    //free schedule and queue from the heap
-    free(schedule);
-    free(queue);
-
-    //exit the program
-    std::exit(EXIT_SUCCESS);
-}
 
 //temp function to handle std::cin in a seperate thread
 void temp_cin_thread(){
@@ -47,8 +26,7 @@ void temp_cin_thread(){
 
 int main(){
     //read in mirrors.json from file
-    json config_all = readMirrors("configs/mirrors.json");
-    json config = config_all["mirrors"];
+    json config = readMirrors("configs/mirrors.json");
 
     //read env data in from env.json
     json env = readMirrors("configs/env.json");
@@ -60,19 +38,16 @@ int main(){
     //create and build new schedule
     Schedule* schedule = Schedule::getInstance();
     //build the schedule based on the mirrors.json config
-    schedule->build(config);
+    schedule->build(config["mirrors"]);
 
     //create a pointer to the job queue class
     Queue* queue = Queue::getInstance();
     //set queue dryrun
     queue->setDryrun(env["dryrun"]);
     //generate the sync command maps
-    queue->createSyncCommandMap(config);
+    queue->createSyncCommandMap(config["mirrors"]);
     //start the queue (second parameter is number of threads)
-    queue->startQueue(config, env["queueThreads"]);
-
-    //catch ctrl c to perform clean exits
-    signal(SIGINT, exit_handler);
+    queue->startQueue(config["mirrors"], env["queueThreads"]);
 
     //temp cin thread for manual sync
     std::thread ct(temp_cin_thread);

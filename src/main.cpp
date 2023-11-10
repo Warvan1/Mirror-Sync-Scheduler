@@ -24,6 +24,19 @@ void temp_cin_thread(){
     }
 }
 
+//thread that sends a message to the log server every 29 minutes
+//this keeps the socket from closing
+void keep_alive_thread(){
+    mirror::Logger* logger = mirror::Logger::getInstance();
+
+    while(true){
+        //sleep for 29 minutes
+        std::this_thread::sleep_for(std::chrono::minutes(29));
+        //send keepalive message
+        logger->info("keep alive.");
+    }
+}
+
 int main(){
     //read in mirrors.json from file
     json config = readMirrors("configs/mirrors.json");
@@ -48,6 +61,9 @@ int main(){
     queue->createSyncCommandMap(config["mirrors"]);
     //start the queue (second parameter is number of threads)
     queue->startQueue(config["mirrors"], env["queueThreads"]);
+
+    //keep alive thrad
+    std::thread kt(keep_alive_thread);
 
     //temp cin thread for manual sync
     std::thread ct(temp_cin_thread);

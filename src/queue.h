@@ -39,7 +39,7 @@ class Queue{
     //list of queued jobes
     std::list<std::string> queue_;
     //create currentJobs vector to keep track of what jobs we are currently syncing so that we dont do the same one at the same time.
-    std::vector<std::string> currentJobs;
+    std::list<std::string> currentJobs;
     //map of syncCommands
     std::unordered_map<std::string, std::vector<std::string>> syncCommands;
     //used to prevent the queue from being started more than once

@@ -78,38 +78,35 @@ void Queue::startQueue(json &config, std::size_t maxThreads){
 //using threads to run up to "maxThreads" in parallel
 void Queue::jobQueueThread(json &config, std::size_t maxThreads){
     while(true){
-        std::string jobName = "";
-
+        //lock thread
         tLock.lock();
+
         //check if the queue is empty
-        bool queueEmpty = queue_.empty();
-        //if queue not empty
-        if(!queueEmpty){
-            //select and remove the first element
-            jobName = queue_.front();
+        if(!queue_.empty()){
+            //select and remove the first element from queue
+            std::string jobName = queue_.front();
             queue_.pop_front();
             std::cout << queue_.size() << std::endl;
-        }
-        tLock.unlock();
 
-        //if queue not empty
-        if(!queueEmpty){
             //check to make sure that jobName is not in currentJobs already
             if(std::find(currentJobs.begin(), currentJobs.end(), jobName) == currentJobs.end()){
                 //add job to current jobs
-                tLock.lock();
                 currentJobs.push_back(jobName);
-                tLock.unlock();
 
+                //unlock before running the job
+                tLock.unlock();
                 //run the job within our threadpool
                 syncProject(jobName);
-
-                //remove the job from the currientJobs vector
+                //lock after running the job
                 tLock.lock();
+
+                //erase the job from the currientJobs vector
                 currentJobs.erase(std::find(currentJobs.begin(), currentJobs.end(), jobName));
-                tLock.unlock();
             }
         }
+
+        //unlock thread
+        tLock.unlock();
 
         //sleep for 5 seconds so that we arnt running constantly and to prevent constant locking
         std::this_thread::sleep_for(std::chrono::seconds(5));

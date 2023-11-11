@@ -27,17 +27,19 @@ class Queue{
 
     void jobQueueThread(json &config, std::size_t maxThreads);
 
-    void jobQueueThread_single(json &config);
-
     void syncProject(std::string name);
-
-    std::string rsync(json &config, std::string &options);
 
     std::vector<std::string> generateSyncCommands(json &config);
 
+    std::string rsync(json &config, std::string &options);
+
     private: //data
+    //thread lock to prevent access to data from multiple threads at the same time
     std::mutex tLock;
+    //list of queued jobes
     std::list<std::string> queue_;
+    //create currentJobs vector to keep track of what jobs we are currently syncing so that we dont do the same one at the same time.
+    std::vector<std::string> currentJobs;
     //map of syncCommands
     std::unordered_map<std::string, std::vector<std::string>> syncCommands;
     //used to prevent the queue from being started more than once

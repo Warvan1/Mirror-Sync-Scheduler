@@ -66,13 +66,8 @@ void Queue::startQueue(json &config, std::size_t maxThreads){
         logger->warn("startQueue tried to start a second time");
         return;
     }
-    //start single threaded queue on detatched thread
-    if(maxThreads == 1){
-        std::thread t(&Queue::jobQueueThread_single, this, std::ref(config));
-        t.detach();
-    }
-    //start multithreaded queue on detatched thread
-    else{
+    //create a pool of threads to run syncs in
+    for(std::size_t i = 0; i < maxThreads; i++){
         std::thread t(&Queue::jobQueueThread, this, std::ref(config), maxThreads);
         t.detach();
     }
@@ -83,67 +78,37 @@ void Queue::startQueue(json &config, std::size_t maxThreads){
 //using threads to run up to "maxThreads" in parallel
 void Queue::jobQueueThread(json &config, std::size_t maxThreads){
     while(true){
+        std::string jobName = "";
+
         tLock.lock();
+        //check if the queue is empty
         bool queueEmpty = queue_.empty();
-        tLock.unlock();
-
+        //if queue not empty
         if(!queueEmpty){
-            //create thread pool
-            std::vector<std::thread> syncThreads;
-            //create currentJobs vector to keep track of what jobs we are currently syncing so that we dont do the same one at the same time.
-            std::vector<std::string> currentJobs;
-            //calculate the current number of needed threads
-            tLock.lock();
-            std::size_t numThreads = std::min(maxThreads, queue_.size());
-            tLock.unlock();
-
-            //run up to "maxThreads" jobs in the queue
-            for(std::size_t i = 0; i < numThreads; i++){
-                //retrieve and then remove first item from queue
-                tLock.lock();
-                std::string jobName = queue_.front();
-                queue_.pop_front();
-                std::cout << queue_.size() << std::endl;
-                tLock.unlock();
-
-                //check to make sure that jobName is not in currentJobs already
-                if(std::find(currentJobs.begin(), currentJobs.end(), jobName) == currentJobs.end()){
-                    //run the job within our threadpool
-                    syncThreads.push_back(std::thread(&Queue::syncProject, this, jobName));
-                    //add job to current jobs
-                    currentJobs.push_back(jobName);
-                }
-            }
-
-            //join all our threads before we continue
-            for(std::size_t i = 0; i < syncThreads.size(); i++){
-                syncThreads[i].join();
-            }
-        }
-
-        //sleep for 5 seconds so that we arnt running constantly and to prevent constant locking
-        std::this_thread::sleep_for(std::chrono::seconds(5));
-    }
-}
-
-//checks the queue every 5 seconds and runs any added jobs
-//runs jobs in sequence
-void Queue::jobQueueThread_single(json &config){
-    while(true){
-        tLock.lock();
-        bool queueEmpty = queue_.empty();
-        tLock.unlock();
-
-        if(!queueEmpty){
-            //retrieve and then remove first item from queue
-            tLock.lock();
-            std::string jobName = queue_.front();
+            //select and remove the first element
+            jobName = queue_.front();
             queue_.pop_front();
             std::cout << queue_.size() << std::endl;
-            tLock.unlock();
+        }
+        tLock.unlock();
 
-            //run the first job in the queue
-            syncProject(jobName);
+        //if queue not empty
+        if(!queueEmpty){
+            //check to make sure that jobName is not in currentJobs already
+            if(std::find(currentJobs.begin(), currentJobs.end(), jobName) == currentJobs.end()){
+                //add job to current jobs
+                tLock.lock();
+                currentJobs.push_back(jobName);
+                tLock.unlock();
+
+                //run the job within our threadpool
+                syncProject(jobName);
+
+                //remove the job from the currientJobs vector
+                tLock.lock();
+                currentJobs.erase(std::find(currentJobs.begin(), currentJobs.end(), jobName));
+                tLock.unlock();
+            }
         }
 
         //sleep for 5 seconds so that we arnt running constantly and to prevent constant locking
@@ -165,7 +130,7 @@ void Queue::syncProject(std::string name){
         system(command.c_str());
     }
             
-    //temporary sleep for testing when doing
+    //temporary sleep for testing when doing a dry run
     if(dryrun == true){
         std::this_thread::sleep_for(std::chrono::seconds(10));
     }
@@ -174,6 +139,7 @@ void Queue::syncProject(std::string name){
     logger->info(name + " completed");
 }
 
+//create a map that maps a task to the commands needed to sync it
 void Queue::createSyncCommandMap(json &config){
     //make sure the vector of maps is clear
     syncCommands.clear();
@@ -183,24 +149,6 @@ void Queue::createSyncCommandMap(json &config){
         //generate sync commands for each entry and add it to our map
         syncCommands[x.key()] = generateSyncCommands(config[x.key()]);
     }
-}
-
-//compose an rsync command
-std::string Queue::rsync(json &config, std::string &options){
-    std::string command = "rsync " + options + " ";
-
-    std::string user = config.value("user", "");
-    std::string host = config.value("host", "");
-    std::string src = config.value("src", "");
-    std::string dest = config.value("dest", "");
-
-    if(user != ""){
-        command = command + user + "@" + host + "::" + src + " " + dest;
-    }
-    else{
-        command = command + host + "::" + src + " " + dest;
-    }
-    return command;
 }
 
 //generate commands to sync a given project config
@@ -237,4 +185,22 @@ std::vector<std::string> Queue::generateSyncCommands(json &config){
         output.push_back(command);
     }
     return output;
+}
+
+//compose an rsync command
+std::string Queue::rsync(json &config, std::string &options){
+    std::string command = "rsync " + options + " ";
+
+    std::string user = config.value("user", "");
+    std::string host = config.value("host", "");
+    std::string src = config.value("src", "");
+    std::string dest = config.value("dest", "");
+
+    if(user != ""){
+        command = command + user + "@" + host + "::" + src + " " + dest;
+    }
+    else{
+        command = command + host + "::" + src + " " + dest;
+    }
+    return command;
 }

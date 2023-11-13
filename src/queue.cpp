@@ -7,7 +7,7 @@
 #include <list>
 #include <algorithm>
 #include <unordered_map>
-#include <stdio.h>
+// #include <stdio.h>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -118,10 +118,18 @@ void Queue::syncProject(std::string name){
     std::cout << name << " started" << std::endl;
     logger->info(name + " started");
 
-    //check if name in map for command iteration
+    //for each command in the vector of commands for the given name in the syncCommands map
     for(std::string command : syncCommands[name]){
         if(dryrun == true){
             command = "echo \"" + command + "\"";  
+        }
+        //check if password
+        else if(passwordFiles.find(name) != passwordFiles.end()){
+            //create string with environment variable
+            std::string passwordStr = "RSYNC_PASSWORD="+passwordFiles[name];
+            //convert std::string to char*
+            char* password = const_cast<char*>(passwordStr.c_str());
+            putenv(password);
         }
         //run command
         system(command.c_str());
@@ -138,18 +146,19 @@ void Queue::syncProject(std::string name){
 
 //create a map that maps a task to the commands needed to sync it
 void Queue::createSyncCommandMap(json &config){
-    //make sure the vector of maps is clear
+    //make sure the syncCommand and passwordFiles maps are empty
     syncCommands.clear();
+    passwordFiles.clear();
 
     //loop through all mirror entries
     for (auto& x : config.items()){
         //generate sync commands for each entry and add it to our map
-        syncCommands[x.key()] = generateSyncCommands(config[x.key()]);
+        syncCommands[x.key()] = generateSyncCommands(config[x.key()], x.key());
     }
 }
 
 //generate commands to sync a given project config
-std::vector<std::string> Queue::generateSyncCommands(json &config){
+std::vector<std::string> Queue::generateSyncCommands(json &config, std::string name){
     std::vector<std::string> output;
     //check if project has an rsync json object
     auto rsyncData = config.find("rsync");
@@ -169,6 +178,12 @@ std::vector<std::string> Queue::generateSyncCommands(json &config){
         options = config["rsync"].value("third", "");
         if(options != ""){
             output.push_back(rsync(config["rsync"], options));
+        }
+
+        //handle passwords
+        options = config["rsync"].value("password_file", "");
+        if(options != ""){
+            passwordFiles[name] = options;
         }
 
     }

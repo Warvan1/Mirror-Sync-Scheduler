@@ -117,13 +117,15 @@ void Queue::jobQueueThread(json &config, std::size_t maxThreads){
 void Queue::syncProject(std::string name){
     std::cout << name << " started" << std::endl;
     logger->info(name + " started");
+    //used to get the status of rsync when it runs
+    int status = -1;
 
     //for each command in the vector of commands for the given name in the syncCommands map
     for(std::string command : syncCommands[name]){
         if(dryrun == true){
             command = "echo \"" + command + "\"";  
             //run command
-            system(command.c_str());
+            status = system(command.c_str());
         }
         //check if password
         else if(passwordFiles.find(name) != passwordFiles.end()){
@@ -140,11 +142,11 @@ void Queue::syncProject(std::string name){
             //put password into command environment
             putenv(password_cstr);
             //run command
-            system(command.c_str());
+            status = system(command.c_str());
         }
         else{
             //run command
-            system(command.c_str());
+            status = system(command.c_str());
         }
     }
             
@@ -153,8 +155,15 @@ void Queue::syncProject(std::string name){
         std::this_thread::sleep_for(std::chrono::seconds(10));
     }
 
-    std::cout << name << " completed" << std::endl;
-    logger->info(name + " completed");
+    if(status == 0){
+        std::cout << name << " completed succesfully" << std::endl;
+        logger->info(name + " completed succesfully");
+    }
+    else{
+        std::cout << name << " failed" << std::endl;
+        logger->error(name + " failed");
+    }
+    
 }
 
 //create a map that maps a task to the commands needed to sync it

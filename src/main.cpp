@@ -3,8 +3,6 @@
 #include <string>
 #include <chrono>
 #include <thread>
-// #include <signal.h>
-#include <cstdlib>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;

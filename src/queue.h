@@ -29,7 +29,7 @@ class Queue{
 
     void syncProject(std::string name);
 
-    std::vector<std::string> generateSyncCommands(json &config);
+    std::vector<std::string> generateSyncCommands(json &config, std::string name);
 
     std::string rsync(json &config, std::string &options);
 
@@ -42,6 +42,8 @@ class Queue{
     std::list<std::string> currentJobs;
     //map of syncCommands
     std::unordered_map<std::string, std::vector<std::string>> syncCommands;
+    //map of password files
+    std::unordered_map<std::string, std::string> passwordFiles;
     //used to prevent the queue from being started more than once
     bool queueRunning;
     //used to run program as a "dry run"

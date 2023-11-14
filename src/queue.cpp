@@ -7,7 +7,7 @@
 #include <list>
 #include <algorithm>
 #include <unordered_map>
-// #include <stdio.h>
+#include <fstream>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -122,17 +122,30 @@ void Queue::syncProject(std::string name){
     for(std::string command : syncCommands[name]){
         if(dryrun == true){
             command = "echo \"" + command + "\"";  
+            //run command
+            system(command.c_str());
         }
         //check if password
         else if(passwordFiles.find(name) != passwordFiles.end()){
+            //read password in from passwordFile
+            std::ifstream f("configs/" + passwordFiles[name]);
+            std::string password;
+            std::getline(f, password);
+
             //create string with environment variable
-            std::string passwordStr = "RSYNC_PASSWORD="+passwordFiles[name];
+            std::string passwordStr = "RSYNC_PASSWORD="+ password;
             //convert std::string to char*
-            char* password = const_cast<char*>(passwordStr.c_str());
-            putenv(password);
+            char* password_cstr = const_cast<char*>(passwordStr.c_str());
+
+            //put password into command environment
+            putenv(password_cstr);
+            //run command
+            system(command.c_str());
         }
-        //run command
-        system(command.c_str());
+        else{
+            //run command
+            system(command.c_str());
+        }
     }
             
     //temporary sleep for testing when doing a dry run

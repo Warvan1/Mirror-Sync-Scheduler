@@ -154,3 +154,28 @@ std::vector<std::string>* Schedule::nextJob(int &seconds_to_sleep){
     seconds_to_sleep = (int)((jobs[iterator].target_time * total_seconds_day) - (scheduleTime * total_seconds_day)) + 1;
     return &(jobs[iterator-1].name);
 }
+
+//read mirrors.json into a list of tasks
+std::vector<Task> Schedule::parseTasks(json &config){
+    std::vector<Task> tasks;
+    //create a vector of task structs from mirrors.json
+    for (auto& x : config.items()){
+        json Xvalue = x.value();
+        json rsync = Xvalue["rsync"];
+        json script = Xvalue["script"];
+
+        if(!rsync.is_null()){
+            Task task;
+            task.name = x.key();
+            task.syncs = rsync.value("syncs_per_day", 0);
+            tasks.push_back(task);
+        }
+        else if(!script.is_null()){
+            Task task;
+            task.name = x.key();
+            task.syncs = script.value("syncs_per_day", 0);
+            tasks.push_back(task);
+        }
+    }
+    return tasks;
+}

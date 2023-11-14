@@ -1,6 +1,14 @@
 #pragma once
 
-#include "structs.h"
+struct Task{
+    std::string name;
+    int syncs;
+};
+
+struct Job{
+    std::vector<std::string> name;
+    double target_time;
+};
 
 class Schedule{
     private:
@@ -21,6 +29,8 @@ class Schedule{
 
     private: //functions
     bool verify(std::vector<Task> tasks);
+
+    std::vector<Task> parseTasks(json &config);
 
     private: //data
     int iterator;

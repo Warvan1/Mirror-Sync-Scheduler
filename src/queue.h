@@ -1,6 +1,6 @@
 #pragma once
 
-#include <list>
+#include <deque>
 
 class Queue{
     public: //functions
@@ -36,10 +36,10 @@ class Queue{
     private: //data
     //thread lock to prevent access to data from multiple threads at the same time
     std::mutex tLock;
-    //list of queued jobes
-    std::list<std::string> queue_;
+    //deque of queued jobes
+    std::deque<std::string> queue_;
     //create currentJobs vector to keep track of what jobs we are currently syncing so that we dont do the same one at the same time.
-    std::list<std::string> currentJobs;
+    std::vector<std::string> currentJobs;
     //map of syncCommands
     std::unordered_map<std::string, std::vector<std::string>> syncCommands;
     //map of password files

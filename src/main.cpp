@@ -58,7 +58,7 @@ int main(){
     //generate the sync command maps
     queue->createSyncCommandMap(config["mirrors"]);
     //start the queue (second parameter is number of threads)
-    queue->startQueue(config["mirrors"], env["queueThreads"]);
+    queue->startQueue(env["queueThreads"]);
 
     //keep alive thrad
     std::thread kt(keep_alive_thread);

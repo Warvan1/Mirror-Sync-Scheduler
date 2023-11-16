@@ -61,14 +61,14 @@ void Queue::push_front_single(std::string &s){
 }
 
 //start the job queue thread
-void Queue::startQueue(json &config, std::size_t maxThreads){
+void Queue::startQueue(std::size_t maxThreads){
     if(queueRunning == true){
         logger->warn("startQueue tried to start a second time");
         return;
     }
     //create a pool of threads to run syncs in
     for(std::size_t i = 0; i < maxThreads; i++){
-        std::thread t(&Queue::jobQueueThread, this, std::ref(config), maxThreads);
+        std::thread t(&Queue::jobQueueThread, this);
         t.detach();
     }
     queueRunning = true;
@@ -76,7 +76,7 @@ void Queue::startQueue(json &config, std::size_t maxThreads){
 
 //checks the queue every 5 seconds and runs any added jobs 
 //using threads to run up to "maxThreads" in parallel
-void Queue::jobQueueThread(json &config, std::size_t maxThreads){
+void Queue::jobQueueThread(){
     while(true){
         //lock thread
         tLock.lock();

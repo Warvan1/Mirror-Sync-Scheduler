@@ -16,7 +16,7 @@ class Queue{
 
     void push_front_single(std::string &s);
 
-    void startQueue(json &config, std::size_t maxThreads);
+    void startQueue(std::size_t maxThreads);
 
     void createSyncCommandMap(json &config);
 
@@ -25,7 +25,7 @@ class Queue{
     private: //functions
     Queue();
 
-    void jobQueueThread(json &config, std::size_t maxThreads);
+    void jobQueueThread();
 
     void syncProject(std::string name);
 

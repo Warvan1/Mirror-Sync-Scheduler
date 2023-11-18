@@ -11,7 +11,7 @@
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
-#include <mirror/logger.h>
+#include <mirror/logger.hpp>
 
 #include "queue.h"
 
@@ -46,18 +46,46 @@ void Queue::push_back_list(std::vector<std::string>* name){
     tLock.unlock();
 }
 
-//used by manual sync to add a task to the front of the queue
-void Queue::push_front_single(std::string &s){
-    tLock.lock();
-    auto search = syncCommands.find(s);
-    if(search != syncCommands.end()){ //check to make sure that given string is in syncCommands
-        queue_.push_front(s);
-    }
-    else{
-        logger->warn(s + " is not valid");
-    }
-    std::cout << queue_.size() << std::endl;
-    tLock.unlock();
+//manualy sync a project in a detached thread
+void Queue::manual_sync(std::string name){
+    //create a thread using a lambda function
+    std::thread t([=]{
+        //lock thread
+        tLock.lock();
+
+        //check to make sure that given string is in syncCommands
+        auto search = syncCommands.find(name);
+        if(search == syncCommands.end()){
+            logger->warn(name + " is not a valid project (manual sync failed)");
+            tLock.unlock();
+            return;
+        }
+
+        //make sure that the job is a not already syncing
+        if(std::find(currentJobs.begin(), currentJobs.end(), name) == currentJobs.end()){
+            //add job to current jobs
+            currentJobs.push_back(name);
+
+            //unlock before running the job
+            tLock.unlock();
+            //run the job
+            syncProject(name);
+            //lock after running the job
+            tLock.lock();
+
+            //erase the job from the currientJobs vector
+            currentJobs.erase(std::find(currentJobs.begin(), currentJobs.end(), name));
+        }
+        else{
+            logger->warn(name + " is already syncing (manual sync failed)");
+        }
+
+        //unlock thread
+        tLock.unlock();
+    });
+
+    //detach the thread 
+    t.detach();
 }
 
 //start the job queue thread

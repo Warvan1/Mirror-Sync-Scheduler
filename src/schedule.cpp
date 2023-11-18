@@ -6,7 +6,7 @@
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
-#include <mirror/logger.h>
+#include <mirror/logger.hpp>
 
 #include "schedule.h"
 #include "mirrors.h"

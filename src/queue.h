@@ -14,7 +14,7 @@ class Queue{
 
     void push_back_list(std::vector<std::string>* name);
 
-    void push_front_single(std::string &s);
+    void manual_sync(std::string name);
 
     void startQueue(std::size_t maxThreads);
 

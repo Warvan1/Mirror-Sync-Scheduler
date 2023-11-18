@@ -6,7 +6,7 @@
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
-#include <mirror/logger.h>    
+#include <mirror/logger.hpp>    
 
 #include "schedule.h"
 #include "mirrors.h"
@@ -18,7 +18,8 @@ void temp_cin_thread(){
     while(true){
         std::string x;
         std::cin >> x;
-        queue->push_front_single(x);
+        //manually sync a project in a detached thread based on cin input
+        queue->manual_sync(x);
     }
 }
 

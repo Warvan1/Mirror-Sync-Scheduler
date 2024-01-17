@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    container_name: sync_scheduler
+    restart: unless-stopped
+#    links:
+#      - "mirrorlog:log_server"
+    volumes:
+      - "/storage:/storage"
+      - "./configs:/mirror/configs"
+    deploy:
+      resources:
+        limits:
+          cpus: '8.0'
+          memory: 16384M
+    stdin_open: true
+    tty: true

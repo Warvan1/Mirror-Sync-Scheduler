@@ -33,6 +33,10 @@ void Queue::setDryrun(bool dr){
 //used to add a list of jobs to the queue
 void Queue::push_back_list(std::vector<std::string>* name){
     tLock.lock();
+    //store old queue size for duplicate check later.
+    int oldQueueSize = queue_.size();
+
+    //add name list to the queue 
     for(int i = 0; i < name->size(); i++){
         auto search = syncCommands.find((*name)[i]);
         if(search != syncCommands.end()){ //check to make sure that given string is in syncCommands
@@ -42,6 +46,21 @@ void Queue::push_back_list(std::vector<std::string>* name){
             logger->warn((*name)[i] + " is not valid");
         }
     }
+
+    //duplicate check (only runs when queue wasnt empty to start with, so should run rarely)
+    for(int i = 0; i < oldQueueSize; i++){
+        for(std::deque<std::string>::iterator it = queue_.begin() + oldQueueSize; it != queue_.end();){
+            if(queue_[i] == *it){
+                queue_.erase(it);
+                logger->warn("erasing duplicate from queue: " + queue_[i]);
+                break;
+            }
+            else{
+                it++;
+            }
+        }
+    }
+
     std::cout << queue_.size() << std::endl;
     tLock.unlock();
 }

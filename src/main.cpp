@@ -9,7 +9,7 @@ using json = nlohmann::json;
 #include <mirror/logger.hpp>    
 
 #include "schedule.h"
-#include "mirrors.h"
+#include "readJson.h"
 #include "queue.h"
 
 //temp function to handle std::cin in a seperate thread
@@ -37,11 +37,11 @@ void keep_alive_thread(){
 }
 
 int main(){
-    //read in mirrors.json from file
-    json config = readMirrors("configs/mirrors.json");
+    //read in mirrors.json from mirrorapi
+    json config = readJSONFromHTTP("localhost", 8080, "/api/mirrors", "");
 
     //read env data in from env.json
-    json env = readMirrors("configs/env.json");
+    json env = readJSONFromFile("configs/env.json");
 
     //initialize and configure connection to log server
     mirror::Logger* logger = mirror::Logger::getInstance();
@@ -50,14 +50,14 @@ int main(){
     //create and build new schedule
     Schedule* schedule = Schedule::getInstance();
     //build the schedule based on the mirrors.json config
-    schedule->build(config["mirrors"]);
+    schedule->build(config);
 
     //create a pointer to the job queue class
     Queue* queue = Queue::getInstance();
     //set queue dryrun
     queue->setDryrun(env["dryrun"]);
     //generate the sync command maps
-    queue->createSyncCommandMap(config["mirrors"]);
+    queue->createSyncCommandMap(config);
     //start the queue (second parameter is number of threads)
     queue->startQueue(env["queueThreads"]);
 

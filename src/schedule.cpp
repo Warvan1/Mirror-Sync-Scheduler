@@ -9,7 +9,6 @@ using json = nlohmann::json;
 #include <mirror/logger.hpp>
 
 #include "schedule.h"
-#include "mirrors.h"
 
 //build a schedule of jobs spaced evenly throuout the day
 Schedule::Schedule(): iterator(0){}

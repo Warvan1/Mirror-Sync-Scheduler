@@ -37,11 +37,18 @@ void keep_alive_thread(){
 }
 
 int main(){
-    //read in mirrors.json from mirrorapi
-    json config = readJSONFromHTTP("localhost", 8080, "/api/mirrors", "");
-
     //read env data in from env.json
     json env = readJSONFromFile("configs/env.json");
+
+    //read in mirrors.json from mirrorapi
+    json config = {};
+    try{
+        config = readJSONFromHTTP(env["mirrorapi"]["host"], env["mirrorapi"]["port"], env["mirrorapi"]["resource"], env["mirrorapi"]["query"]);
+    }
+    catch(const std::exception& e){
+        std::cerr << "Failed to retrieve mirrors.json from mirrorapi.\nMake sure mirrorapi is running." << std::endl;
+        return 1;
+    }
 
     //initialize and configure connection to log server
     mirror::Logger* logger = mirror::Logger::getInstance();

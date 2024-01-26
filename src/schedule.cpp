@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 #include <ctime>
+#include <atomic>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -24,15 +25,10 @@ Schedule* Schedule::getInstance(){
 void Schedule::build(json config){
     //clear the jobs vector of any old jobs
     jobs.clear();
+    iterator = 0;
 
     //create Task vector from mirrors.json
     std::vector<Task> tasks = parseTasks(config);
-
-    //calculate the total number of jobs
-    int total_jobs = 0;
-    for(int i = 0; i < tasks.size(); i++){
-        total_jobs += tasks[i].syncs;
-    }
     
     //compute the least common multiple of all sync frequencies
     int lcm = 1;

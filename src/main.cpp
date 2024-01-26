@@ -12,14 +12,37 @@ using json = nlohmann::json;
 #include "schedule.h"
 #include "queue.h"
 
-//temp function to handle std::cin in a seperate thread
-void temp_cin_thread(){
+//read json in from a file
+json readJSONFromFile(std::string filename){
+    std::ifstream f(filename);
+    json config = json::parse(f);
+    f.close();
+    return config;
+}
+
+//function to handle std::cin in a seperate thread
+void cin_thread(){
+    //create a pointer to the queue
     Queue* queue = Queue::getInstance();
+    //create a pointer to the schedule
+    Schedule* schedule = Schedule::getInstance();
+
     while(true){
         std::string x;
         std::cin >> x;
-        //manually sync a project in a detached thread based on cin input
-        queue->manual_sync(x);
+        //reload the sync scheduler
+        if(x == "reload"){
+            //read mirror data in from mirrors.json
+            json config = readJSONFromFile("configs/mirrors.json");
+
+            //build the schedule based on the mirrors.json config
+            schedule->build(config["mirrors"]);
+            std::cout << "Reloaded mirrors.json" << std::endl;
+        }
+        //manually sync a project in a detached thread
+        else{
+            queue->manual_sync(x);
+        }
     }
 }
 
@@ -34,14 +57,6 @@ void keep_alive_thread(){
         //send keepalive message
         logger->info("keep alive.");
     }
-}
-
-//read json in from a file
-json readJSONFromFile(std::string filename){
-    std::ifstream f(filename);
-    json config = json::parse(f);
-    f.close();
-    return config;
 }
 
 int main(){
@@ -72,8 +87,8 @@ int main(){
     //keep alive thrad
     std::thread kt(keep_alive_thread);
 
-    //temp cin thread for manual sync
-    std::thread ct(temp_cin_thread);
+    //cin thread for program input
+    std::thread ct(cin_thread);
 
     std::vector<std::string>* name;
     int seconds_to_sleep;

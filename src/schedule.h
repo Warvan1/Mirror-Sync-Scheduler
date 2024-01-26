@@ -32,6 +32,10 @@ class Schedule{
 
     std::vector<Task> parseTasks(json &config);
 
+    public: //data
+    //used to determine if the main loop needs to recalculate nextJob
+    std::atomic_bool reloaded;
+
     private: //data
     int iterator;
     std::vector<Job> jobs;

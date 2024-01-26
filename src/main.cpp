@@ -4,6 +4,7 @@
 #include <chrono>
 #include <thread>
 #include <fstream>
+#include <atomic>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -37,6 +38,8 @@ void cin_thread(){
 
             //build the schedule based on the mirrors.json config
             schedule->build(config["mirrors"]);
+            //set reloaded flag for main thread
+            schedule->reloaded = true;
             std::cout << "Reloaded mirrors.json" << std::endl;
         }
         //manually sync a project in a detached thread
@@ -102,8 +105,18 @@ int main(){
         }
         std::cout << seconds_to_sleep << std::endl;
 
-        //sleep till the next job
-        std::this_thread::sleep_for(std::chrono::seconds(seconds_to_sleep));
+        //reset reloaded flag
+        schedule->reloaded = false;
+
+        //sleep for "seconds_to_sleep" seconds checking periodically for mirrors.json reloads
+        int secondsPassed = 0;
+        int interval = 10; //interval between checks for reload
+        while(secondsPassed <= seconds_to_sleep){
+            std::this_thread::sleep_for(std::chrono::seconds(interval));
+            secondsPassed += interval;
+            if(schedule->reloaded == true) break;
+        }
+        if(schedule->reloaded == true) continue;
 
         //add job names to job queue
         queue->push_back_list(name);

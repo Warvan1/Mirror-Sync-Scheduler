@@ -3,13 +3,13 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <fstream>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 #include <mirror/logger.hpp>    
 
 #include "schedule.h"
-#include "readJson.h"
 #include "queue.h"
 
 //temp function to handle std::cin in a seperate thread
@@ -36,19 +36,20 @@ void keep_alive_thread(){
     }
 }
 
+//read json in from a file
+json readJSONFromFile(std::string filename){
+    std::ifstream f(filename);
+    json config = json::parse(f);
+    f.close();
+    return config;
+}
+
 int main(){
     //read env data in from env.json
     json env = readJSONFromFile("configs/env.json");
 
-    //read in mirrors.json from mirrorapi
-    json config = {};
-    try{
-        config = readJSONFromHTTP(env["mirrorapi"]["host"], env["mirrorapi"]["port"], env["mirrorapi"]["resource"], env["mirrorapi"]["query"]);
-    }
-    catch(const std::exception& e){
-        std::cerr << "Failed to retrieve mirrors.json from mirrorapi.\nMake sure mirrorapi is running." << std::endl;
-        return 1;
-    }
+    //read mirror data in from mirrors.json
+    json config = readJSONFromFile("configs/mirrors.json");
 
     //initialize and configure connection to log server
     mirror::Logger* logger = mirror::Logger::getInstance();
@@ -57,14 +58,14 @@ int main(){
     //create and build new schedule
     Schedule* schedule = Schedule::getInstance();
     //build the schedule based on the mirrors.json config
-    schedule->build(config);
+    schedule->build(config["mirrors"]);
 
     //create a pointer to the job queue class
     Queue* queue = Queue::getInstance();
     //set queue dryrun
     queue->setDryrun(env["dryrun"]);
     //generate the sync command maps
-    queue->createSyncCommandMap(config);
+    queue->createSyncCommandMap(config["mirrors"]);
     //start the queue (second parameter is number of threads)
     queue->startQueue(env["queueThreads"]);
 

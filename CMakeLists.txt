@@ -4,9 +4,7 @@ project(syncScheduler)
 add_executable(${PROJECT_NAME}
     src/main.cpp
     src/schedule.cpp
-    src/readJson.cpp
     src/queue.cpp
-    src/httpRequest.cpp
 )
 
 include(FetchContent)

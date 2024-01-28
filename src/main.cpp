@@ -5,6 +5,7 @@
 #include <thread>
 #include <fstream>
 #include <atomic>
+#include <signal.h>
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -12,6 +13,13 @@ using json = nlohmann::json;
 
 #include "schedule.h"
 #include "queue.h"
+
+//used to stop the program cleanly with ctrl c
+static bool keepRunning = true;
+
+void intHandler(int i){
+    keepRunning = false;
+}
 
 //read json in from a file
 json readJSONFromFile(std::string filename){
@@ -63,6 +71,9 @@ void keep_alive_thread(){
 }
 
 int main(){
+    //ctrl c signal handler
+    signal(SIGINT, intHandler);
+
     //read env data in from env.json
     json env = readJSONFromFile("configs/env.json");
 
@@ -108,19 +119,28 @@ int main(){
         //reset reloaded flag
         schedule->reloaded = false;
 
-        //sleep for "seconds_to_sleep" seconds checking periodically for mirrors.json reloads
+        //sleep for "seconds_to_sleep" seconds checking periodically for mirrors.json reloads or exit code
         int secondsPassed = 0;
-        int interval = 10; //interval between checks for reload
+        int interval = 1; //interval between checks for reload and exit code
         while(secondsPassed <= seconds_to_sleep){
             std::this_thread::sleep_for(std::chrono::seconds(interval));
             secondsPassed += interval;
             if(schedule->reloaded == true) break;
+            if(keepRunning == false) break;
         }
+        if(keepRunning == false) break;
         if(schedule->reloaded == true) continue;
 
         //add job names to job queue
         queue->push_back_list(name);
     }
+
+    //program cleanup
+    logger->fatal("Program Cleanly Exiting. (Probably ctrl c)");
+    std::cout << "Program Cleanly Exiting. (Probably ctrl c)" << std::endl;
+    free(schedule);
+    free(queue);
+    free(logger);
     
     return 0;
 }

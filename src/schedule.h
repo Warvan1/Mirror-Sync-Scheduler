@@ -21,15 +21,20 @@ class Schedule{
     Schedule &operator=(const Schedule &) = delete;
     Schedule &operator=(const Schedule &&) = delete;
 
+    //create the schedule object the first time and return a pointer to that same object every other time its called
     static Schedule* getInstance();
 
-    void build(json config);
+    //use the mirrors.json file to create the schedule 
+    void build(json &config);
 
+    //return the next job and the time to sleep till that job using the schedule and the currient time
     std::vector<std::string>* nextJob(int &seconds_to_sleep);
 
     private: //functions
+    //used inside build to run several sanity checks for the schedule
     bool verify(std::vector<Task> tasks);
 
+    //used inside build to parse the mirrors.json file into a vector of tasks
     std::vector<Task> parseTasks(json &config);
 
     public: //data
@@ -38,6 +43,7 @@ class Schedule{
 
     private: //data
     int iterator;
+    //vector of jobs containing names of jobs to sync and the time to sync them
     std::vector<Job> jobs;
     //connection to log server
     mirror::Logger* logger = mirror::Logger::getInstance();

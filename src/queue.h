@@ -10,12 +10,16 @@ class Queue{
     Queue &operator=(const Queue &) = delete;
     Queue &operator=(const Queue &&) = delete;
 
+    //create the queue object the first time and return a pointer to that same object every other time its called
     static Queue* getInstance();
 
+    //add a list of jobs to the back of the queue from the schedule
     void push_back_list(std::vector<std::string>* name);
 
+    //sync a project in a seperate thread from the queue
     void manual_sync(std::string name);
 
+    //start a given number of jobQueueThreads based on the number of maxThreads
     void startQueue(std::size_t maxThreads);
 
     void createSyncCommandMap(json &config);

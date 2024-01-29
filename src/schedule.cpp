@@ -22,7 +22,7 @@ Schedule* Schedule::getInstance(){
     return schedule;
 }
 
-void Schedule::build(json config){
+void Schedule::build(json &config){
     //clear the jobs vector of any old jobs
     jobs.clear();
     iterator = 0;

@@ -95,10 +95,10 @@ int main(){
     queue->setDryrun(env["dryrun"]);
     //generate the sync command maps
     queue->createSyncCommandMap(config["mirrors"]);
-    //start the queue (second parameter is number of threads)
+    //start the queue (parameter is number of queue threads)
     queue->startQueue(env["queueThreads"]);
 
-    //keep alive thrad
+    //keep alive thread
     std::thread kt(keep_alive_thread);
 
     //cin thread for program input

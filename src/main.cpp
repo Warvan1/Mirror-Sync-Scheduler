@@ -138,6 +138,8 @@ int main(){
     //program cleanup
     logger->fatal("Program Cleanly Exiting. (Probably ctrl c)");
     std::cout << "Program Cleanly Exiting. (Probably ctrl c)" << std::endl;
+    //make sure there is enough time for the logger to send a message before freeing.
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     free(schedule);
     free(queue);
     free(logger);

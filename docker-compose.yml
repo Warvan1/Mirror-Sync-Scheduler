@@ -13,6 +13,6 @@ services:
       resources:
         limits:
           cpus: '8.0'
-          memory: 16384M
+          memory: 8192M
     stdin_open: true
     tty: true

@@ -6,6 +6,7 @@ services:
     volumes:
       - "/storage:/storage"
       - "./configs:/mirror/sync_scheduler/configs:ro"
+      - "./scripts:/mirror/sync_scheduler/scripts:ro"
     networks:
       - mirror
     deploy:

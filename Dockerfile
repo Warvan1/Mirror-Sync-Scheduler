@@ -1,3 +1,6 @@
+# IMPORTANT:
+# Replace --uid 1000 and --gid 1000 with the uid and gid of the mirror user
+
 # Build
 FROM ubuntu:latest as builder
 RUN apt update && apt upgrade -y
@@ -14,6 +17,11 @@ RUN cmake --build /sync_scheduler/build --target all
 FROM ubuntu:latest
 RUN apt update && apt upgrade -y
 RUN apt install -y libzmq3-dev rsync
+RUN groupadd --gid 1000 mirror
+RUN useradd --gid 1000 --uid 1000 --no-create-home --shell /bin/bash mirror
 WORKDIR /mirror/sync_scheduler
-COPY --from=builder /sync_scheduler/build/syncScheduler /mirror/sync_scheduler/syncScheduler
+COPY --from=builder /sync_scheduler/build/syncScheduler .
+RUN chown mirror syncScheduler
+RUN chgrp mirror syncScheduler
+RUN chmod 744 syncScheduler
 ENTRYPOINT ["./syncScheduler"]

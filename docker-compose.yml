@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     volumes:
       - "/storage:/storage"
-      - "./configs:/mirror/configs"
+      - "./configs:/mirror/sync_scheduler/configs:ro"
     networks:
       - mirror
     deploy:

@@ -82,7 +82,7 @@ int main(){
 
     //initialize and configure connection to log server
     mirror::Logger* logger = mirror::Logger::getInstance();
-    logger->configure(env["logServerPort"], "sync-scheduler", env["mirrorNetwork"]);
+    logger->configure(env["logServerPort"], "sync-scheduler", env["logServerHost"]);
 
     //create and build new schedule
     Schedule* schedule = Schedule::getInstance();

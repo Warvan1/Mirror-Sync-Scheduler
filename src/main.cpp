@@ -95,7 +95,7 @@ int main(){
     signal(SIGINT, intHandler);
 
     //read env data in from env.json
-    json env = readJSONFromFile("configs/env.json");
+    json env = readJSONFromFile("configs/sync-scheduler-env.json");
 
     //read mirror data in from mirrors.json
     json config = readJSONFromFile("configs/mirrors.json");
